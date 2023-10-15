@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>DLsiteMP3TagEditor.Program</StartupObject>
+    <IsPublishable>False</IsPublishable>
+    <Description>DLsiteから情報を取得し、その結果をMP3ファイルに書き込みます。</Description>
+    <Copyright>Copyright (c) Ogura Deko All rights reserved.</Copyright>
+    <PackageProjectUrl>https://fanet.work</PackageProjectUrl>
+    <Company>dekosoft / fanet.work</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DLsiteInfoGetter\DLsiteInfoGetter\DLsiteInfoGetter.csproj" />
+  </ItemGroup>
+
+</Project>
