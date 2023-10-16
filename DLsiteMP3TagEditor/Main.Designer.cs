@@ -45,6 +45,7 @@
 			this.searchText = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.keepOriginCheck = new System.Windows.Forms.CheckBox();
 			this.yearText = new System.Windows.Forms.NumericUpDown();
 			this.albumArtistText = new System.Windows.Forms.TextBox();
 			this.albumText = new System.Windows.Forms.TextBox();
@@ -107,7 +108,7 @@
 			this.applyButton.Location = new System.Drawing.Point(477, 151);
 			this.applyButton.Name = "applyButton";
 			this.applyButton.Size = new System.Drawing.Size(109, 40);
-			this.applyButton.TabIndex = 14;
+			this.applyButton.TabIndex = 8;
 			this.applyButton.Text = "↓反映↓";
 			this.applyButton.UseVisualStyleBackColor = true;
 			this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
@@ -119,7 +120,7 @@
 			this.genreRadio.Location = new System.Drawing.Point(518, 108);
 			this.genreRadio.Name = "genreRadio";
 			this.genreRadio.Size = new System.Drawing.Size(57, 19);
-			this.genreRadio.TabIndex = 13;
+			this.genreRadio.TabIndex = 6;
 			this.genreRadio.TabStop = true;
 			this.genreRadio.Text = "ASMR";
 			this.genreRadio.UseVisualStyleBackColor = true;
@@ -139,7 +140,7 @@
 			this.cvCheckList.Location = new System.Drawing.Point(162, 151);
 			this.cvCheckList.Name = "cvCheckList";
 			this.cvCheckList.Size = new System.Drawing.Size(309, 40);
-			this.cvCheckList.TabIndex = 11;
+			this.cvCheckList.TabIndex = 7;
 			// 
 			// label5
 			// 
@@ -155,7 +156,7 @@
 			this.sellTimePicker.Location = new System.Drawing.Point(403, 107);
 			this.sellTimePicker.Name = "sellTimePicker";
 			this.sellTimePicker.Size = new System.Drawing.Size(109, 23);
-			this.sellTimePicker.TabIndex = 9;
+			this.sellTimePicker.TabIndex = 5;
 			// 
 			// label4
 			// 
@@ -171,7 +172,7 @@
 			this.circleText.Location = new System.Drawing.Point(162, 107);
 			this.circleText.Name = "circleText";
 			this.circleText.Size = new System.Drawing.Size(235, 23);
-			this.circleText.TabIndex = 7;
+			this.circleText.TabIndex = 4;
 			// 
 			// label3
 			// 
@@ -187,7 +188,7 @@
 			this.productText.Location = new System.Drawing.Point(162, 63);
 			this.productText.Name = "productText";
 			this.productText.Size = new System.Drawing.Size(424, 23);
-			this.productText.TabIndex = 5;
+			this.productText.TabIndex = 3;
 			// 
 			// label2
 			// 
@@ -223,6 +224,7 @@
 			this.searchText.Name = "searchText";
 			this.searchText.Size = new System.Drawing.Size(450, 23);
 			this.searchText.TabIndex = 1;
+			this.searchText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.searchText_KeyPress);
 			// 
 			// label1
 			// 
@@ -235,6 +237,7 @@
 			// 
 			// groupBox2
 			// 
+			this.groupBox2.Controls.Add(this.keepOriginCheck);
 			this.groupBox2.Controls.Add(this.yearText);
 			this.groupBox2.Controls.Add(this.albumArtistText);
 			this.groupBox2.Controls.Add(this.albumText);
@@ -256,6 +259,16 @@
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "MP3";
 			// 
+			// keepOriginCheck
+			// 
+			this.keepOriginCheck.AutoSize = true;
+			this.keepOriginCheck.Location = new System.Drawing.Point(32, 178);
+			this.keepOriginCheck.Name = "keepOriginCheck";
+			this.keepOriginCheck.Size = new System.Drawing.Size(101, 19);
+			this.keepOriginCheck.TabIndex = 16;
+			this.keepOriginCheck.Text = "元画像を維持";
+			this.keepOriginCheck.UseVisualStyleBackColor = true;
+			// 
 			// yearText
 			// 
 			this.yearText.Location = new System.Drawing.Point(453, 84);
@@ -271,7 +284,7 @@
             0});
 			this.yearText.Name = "yearText";
 			this.yearText.Size = new System.Drawing.Size(57, 23);
-			this.yearText.TabIndex = 22;
+			this.yearText.TabIndex = 12;
 			this.yearText.Value = new decimal(new int[] {
             2023,
             0,
@@ -283,21 +296,21 @@
 			this.albumArtistText.Location = new System.Drawing.Point(162, 172);
 			this.albumArtistText.Name = "albumArtistText";
 			this.albumArtistText.Size = new System.Drawing.Size(285, 23);
-			this.albumArtistText.TabIndex = 21;
+			this.albumArtistText.TabIndex = 15;
 			// 
 			// albumText
 			// 
 			this.albumText.Location = new System.Drawing.Point(162, 128);
 			this.albumText.Name = "albumText";
 			this.albumText.Size = new System.Drawing.Size(285, 23);
-			this.albumText.TabIndex = 20;
+			this.albumText.TabIndex = 14;
 			// 
 			// genreText
 			// 
 			this.genreText.Location = new System.Drawing.Point(516, 84);
 			this.genreText.Name = "genreText";
 			this.genreText.Size = new System.Drawing.Size(70, 23);
-			this.genreText.TabIndex = 19;
+			this.genreText.TabIndex = 13;
 			this.genreText.Text = "ASMR";
 			// 
 			// artistText
@@ -305,14 +318,14 @@
 			this.artistText.Location = new System.Drawing.Point(162, 84);
 			this.artistText.Name = "artistText";
 			this.artistText.Size = new System.Drawing.Size(285, 23);
-			this.artistText.TabIndex = 17;
+			this.artistText.TabIndex = 11;
 			// 
 			// titleText
 			// 
 			this.titleText.Location = new System.Drawing.Point(162, 40);
 			this.titleText.Name = "titleText";
 			this.titleText.Size = new System.Drawing.Size(424, 23);
-			this.titleText.TabIndex = 16;
+			this.titleText.TabIndex = 10;
 			// 
 			// writeButton
 			// 
@@ -320,7 +333,7 @@
 			this.writeButton.Location = new System.Drawing.Point(453, 128);
 			this.writeButton.Name = "writeButton";
 			this.writeButton.Size = new System.Drawing.Size(133, 67);
-			this.writeButton.TabIndex = 15;
+			this.writeButton.TabIndex = 17;
 			this.writeButton.Text = "◆書込◆";
 			this.writeButton.UseVisualStyleBackColor = true;
 			this.writeButton.Click += new System.EventHandler(this.writeButton_Click);
@@ -393,7 +406,7 @@
 			this.directorySearchButton.Location = new System.Drawing.Point(395, 20);
 			this.directorySearchButton.Name = "directorySearchButton";
 			this.directorySearchButton.Size = new System.Drawing.Size(23, 23);
-			this.directorySearchButton.TabIndex = 2;
+			this.directorySearchButton.TabIndex = 19;
 			this.directorySearchButton.Text = "..";
 			this.directorySearchButton.UseVisualStyleBackColor = true;
 			this.directorySearchButton.Click += new System.EventHandler(this.directorySearchButton_Click);
@@ -403,7 +416,8 @@
 			this.directoryText.Location = new System.Drawing.Point(73, 20);
 			this.directoryText.Name = "directoryText";
 			this.directoryText.Size = new System.Drawing.Size(316, 23);
-			this.directoryText.TabIndex = 1;
+			this.directoryText.TabIndex = 18;
+			this.directoryText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.directoryText_KeyPress);
 			// 
 			// label7
 			// 
@@ -430,7 +444,7 @@
 			this.logText.Name = "logText";
 			this.logText.ReadOnly = true;
 			this.logText.Size = new System.Drawing.Size(579, 119);
-			this.logText.TabIndex = 0;
+			this.logText.TabIndex = 22;
 			this.logText.Text = "";
 			// 
 			// groupBox4
@@ -473,6 +487,7 @@
 			// 
 			// Main
 			// 
+			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1046, 604);
@@ -486,6 +501,8 @@
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.Text = "DLsite MP3 Tag Editor";
 			this.Load += new System.EventHandler(this.Main_Load);
+			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Main_DragDrop);
+			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Main_DragEnter);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dlsitePicture)).EndInit();
@@ -542,5 +559,6 @@
 		private GroupBox groupBox4;
 		private ListBox mp3ListBox;
 		private ListBox mp3PathListBox;
+		private CheckBox keepOriginCheck;
 	}
 }

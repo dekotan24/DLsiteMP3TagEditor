@@ -66,7 +66,10 @@ namespace DLsiteMP3TagEditor
 			albumArtistText.Text = circleText.Text;
 			albumArtistText.BackColor = SystemColors.Window;
 
-			mp3Picture.BackgroundImage = dlsitePicture.BackgroundImage;
+			if (!keepOriginCheck.Checked)
+			{
+				mp3Picture.BackgroundImage = dlsitePicture.BackgroundImage;
+			}
 		}
 
 		private async void writeButton_Click(object sender, EventArgs e)
@@ -95,11 +98,15 @@ namespace DLsiteMP3TagEditor
 				UpdateTagInformation(selectedItems);
 
 				// タグ情報の更新が正常に完了した場合
+				await DeteleBackupFiles(mp3PathListBox.SelectedItems);
 				writeButton.Text = writeButtonText;
 				setLogMessage("タグ情報の更新が完了しました。", MessageType.Info);
 
 				// MP3 ファイルの再読み込み
-				applyMP3FilesList(directoryText.Text);
+				if (directoryText.Text.Length > 0)
+				{
+					applyMP3FilesList(directoryText.Text);
+				}
 				AllMP3TracksSelect();
 
 				// タグ情報を表示
@@ -124,6 +131,11 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// ファイルのバックアップを作成します
+		/// </summary>
+		/// <param name="files"></param>
+		/// <returns></returns>
 		private async Task BackupFilesAsync(System.Windows.Forms.ListBox.SelectedObjectCollection files)
 		{
 			foreach (var file in files)
@@ -134,6 +146,33 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// ファイルのバックアップを削除します
+		/// </summary>
+		/// <param name="files"></param>
+		/// <returns></returns>
+		private async Task DeteleBackupFiles(System.Windows.Forms.ListBox.SelectedObjectCollection files)
+		{
+			foreach (var file in files)
+			{
+				string filePath = file.ToString();
+				string backupPath = filePath + ".bak";
+				if (System.IO.File.Exists(backupPath))
+				{
+					System.IO.File.Delete(backupPath);
+				}
+				else
+				{
+					setLogMessage($"バックアップファイルが存在しません：{backupPath}", MessageType.Error);
+				}
+			}
+		}
+
+		/// <summary>
+		/// バックアップファイルを元に復元します
+		/// </summary>
+		/// <param name="files"></param>
+		/// <returns></returns>
 		private async Task RestoreFilesFromBackupAsync(System.Windows.Forms.ListBox.SelectedObjectCollection files)
 		{
 			foreach (var file in files)
@@ -182,19 +221,21 @@ namespace DLsiteMP3TagEditor
 					mp3.Tag.Genres = new string[] { genreText.Text };
 					mp3.Tag.Year = Convert.ToUInt32(yearText.Text);
 
-					// 画像の更新
-					if (mp3Picture.BackgroundImage != null)
+					if (!keepOriginCheck.Checked)
 					{
-						var picture = new Picture();
-						picture.Type = PictureType.FrontCover;
-						using (var image = new MemoryStream())
+						// 画像の更新
+						if (mp3Picture.BackgroundImage != null)
 						{
-							mp3Picture.BackgroundImage.Save(image, System.Drawing.Imaging.ImageFormat.Jpeg);
-							picture.Data = image.ToArray();
-							mp3.Tag.Pictures = new IPicture[] { picture };
+							var picture = new Picture();
+							picture.Type = PictureType.FrontCover;
+							using (var image = new MemoryStream())
+							{
+								mp3Picture.BackgroundImage.Save(image, System.Drawing.Imaging.ImageFormat.Jpeg);
+								picture.Data = image.ToArray();
+								mp3.Tag.Pictures = new IPicture[] { picture };
+							}
 						}
 					}
-
 
 					mp3.Save();
 					mp3.Dispose();
@@ -294,16 +335,20 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// <paramref name="path"/>からmp3ファイルを検索し、<see cref="directoryText"/>に反映します。
+		/// <paramref name="path"/>からmp3ファイルを検索し、トラックリストに反映します。
 		/// </summary>
-		/// <param name="path"></param>
-		private void applyMP3FilesList(string path)
+		/// <param name="path">検索対象のディレクトリ</param>
+		/// <param name="listClear">trueの場合、リストの初期化を行います</param>
+		private void applyMP3FilesList(string path, bool listClear = true)
 		{
 			try
 			{
-				// リストを初期化する
-				mp3ListBox.Items.Clear();
-				mp3PathListBox.Items.Clear();
+				if (listClear)
+				{
+					// リストを初期化する
+					mp3ListBox.Items.Clear();
+					mp3PathListBox.Items.Clear();
+				}
 
 				// フォルダ内のすべてのmp3ファイルを取得
 				string[] files = System.IO.Directory.GetFiles(path, "*.mp3", SearchOption.AllDirectories);
@@ -668,6 +713,120 @@ namespace DLsiteMP3TagEditor
 			using (var sha256 = new SHA256Managed())
 			{
 				return sha256.ComputeHash(data);
+			}
+		}
+
+		/// <summary>
+		/// マウスポインタのアイコンを変更します。
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void Main_DragEnter(object sender, DragEventArgs e)
+		{
+			// マウスポインター形状変更
+			//
+			// DragDropEffects
+			//  Copy  :データがドロップ先にコピーされようとしている状態
+			//  Move  :データがドロップ先に移動されようとしている状態
+			//  Scroll:データによってドロップ先でスクロールが開始されようとしている状態、あるいは現在スクロール中である状態
+			//  All   :上の3つを組み合わせたもの
+			//  Link  :データのリンクがドロップ先に作成されようとしている状態
+			//  None  :いかなるデータもドロップ先が受け付けようとしない状態
+
+			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				e.Effect = DragDropEffects.Copy;
+			}
+			else
+			{
+				e.Effect = DragDropEffects.None;
+			}
+		}
+
+		private void Main_DragDrop(object sender, DragEventArgs e)
+		{
+			// DataFormats.FileDropを与えて、GetDataPresent()メソッドを呼び出す。
+			var dropTarget = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+			bool firstContinue = true;
+
+			// GetDataにより取得したString型の配列から要素を取り出す。
+			foreach (var targetFile in dropTarget)
+			{
+				if (firstContinue && !(Path.GetExtension(targetFile).ToLower() == ".jpg" || Path.GetExtension(targetFile).ToLower() == ".png"))
+				{
+					mp3ListBox.Items.Clear();
+					mp3PathListBox.Items.Clear();
+					firstContinue = false;
+				}
+				DragAndDropExec(targetFile);
+			}
+		}
+
+		private void DragAndDropExec(string path)
+		{
+			if (Directory.Exists(path))
+			{
+				// フォルダ
+				directoryText.Text = path;
+				applyMP3FilesList(path, false);
+				AllMP3TracksSelect();
+			}
+			else if (System.IO.File.Exists(path))
+			{
+				// ファイル
+				if (System.IO.Path.GetExtension(path).ToLower() == ".mp3")
+				{
+					directoryText.Clear();
+
+					// mp3ListBoxにファイル名だけを追加
+					mp3ListBox.Items.Add(Path.GetFileName(path));
+					// mp3PathListBoxにフルパスを追加
+					mp3PathListBox.Items.Add(path);
+
+					// 全トラック選択
+					AllMP3TracksSelect();
+
+					// タグ情報を表示
+					GetListBoxSelectedInfo();
+				}
+				else if ((Path.GetExtension(path).ToLower() == ".jpg" || Path.GetExtension(path).ToLower() == ".png"))
+				{
+					if (!keepOriginCheck.Checked)
+					{
+						mp3Picture.BackgroundImage = System.Drawing.Image.FromFile(path);
+					}
+					else
+					{
+						setLogMessage("元画像維持チェックが有効のため、画像は変更されません。", MessageType.Info);
+					}
+				}
+				else
+				{
+					setLogMessage($"ファイル形式が不正です。：{path}（{Path.GetExtension(path).ToLower()}）", MessageType.Error);
+				}
+			}
+			else
+			{
+				// ファイル存在しない
+				setLogMessage($"ファイルが存在しません：{path}", MessageType.Error);
+			}
+		}
+
+		private void searchText_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			if (e.KeyChar == (char)Keys.Enter)
+			{
+				searchButton_Click(sender, e);
+			}
+		}
+
+		private void directoryText_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			if (e.KeyChar == (char)Keys.Enter)
+			{
+				applyMP3FilesList(directoryText.Text.Trim());
+				AllMP3TracksSelect();
 			}
 		}
 	}

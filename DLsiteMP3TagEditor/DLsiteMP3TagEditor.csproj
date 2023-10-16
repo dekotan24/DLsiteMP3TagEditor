@@ -12,6 +12,8 @@
     <Copyright>Copyright (c) Ogura Deko All rights reserved.</Copyright>
     <PackageProjectUrl>https://fanet.work</PackageProjectUrl>
     <Company>dekosoft / fanet.work</Company>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
