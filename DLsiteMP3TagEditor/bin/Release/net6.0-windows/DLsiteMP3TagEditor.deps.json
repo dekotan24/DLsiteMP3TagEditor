@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "DLsiteMP3TagEditor/1.0.0": {
+      "DLsiteMP3TagEditor/1.2.0": {
         "dependencies": {
           "DLsiteInfoGetter": "1.0.0",
           "TagLibSharp": "2.3.0"
@@ -39,7 +39,7 @@
     }
   },
   "libraries": {
-    "DLsiteMP3TagEditor/1.0.0": {
+    "DLsiteMP3TagEditor/1.2.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
