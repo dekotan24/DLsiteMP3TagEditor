@@ -81,6 +81,22 @@ namespace DLsiteMP3TagEditor
 				MessageBox.Show("更新対象のトラックが選択されていません。", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
+			if (albumText.Text.Length == 0)
+			{
+				DialogResult dr = MessageBox.Show("アルバム情報が設定されていません。\n続行しますか？", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+				if (dr == DialogResult.No)
+				{
+					return;
+				}
+			}
+			if (artistText.Text.Length == 0)
+			{
+				DialogResult dr = MessageBox.Show("アーティスト情報が設定されていません。\n続行しますか？", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+				if (dr == DialogResult.No)
+				{
+					return;
+				}
+			}
 
 			try
 			{
@@ -211,7 +227,9 @@ namespace DLsiteMP3TagEditor
 					if (totalFiles == 1 || (totalFiles > 1 && !string.Equals(titleText.Text, "<複数の値>")))
 					{
 						if (mp3.Tag.Title != titleText.Text)
+						{
 							mp3.Tag.Title = titleText.Text;
+						}
 					}
 
 					// 他のタグ情報の更新
@@ -307,9 +325,17 @@ namespace DLsiteMP3TagEditor
 				// listboxの全てのアイテムを選択
 				for (int i = 0; i < mp3ListBox.Items.Count; i++)
 				{
-					mp3ListBox.SetSelected(i, true);
+					try
+					{
+						mp3ListBox.SetSelected(i, true);
+					}
+					catch (Exception)
+					{
+						// エラーが発生しても無視
+					}
 				}
 			}
+			return;
 		}
 
 		private void mp3ListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -361,12 +387,13 @@ namespace DLsiteMP3TagEditor
 					mp3PathListBox.Items.Add(file);
 				}
 			}
-
 			catch (Exception ex)
 			{
 				setLogMessage($"ファイルの読み込み中にエラーが発生しました: {ex.Message}", MessageType.Error);
 				MessageBox.Show($"ファイルの読み込み中にエラーが発生しました: {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+
+			return;
 		}
 
 		private void searchButton_Click(object sender, EventArgs e)
@@ -537,7 +564,7 @@ namespace DLsiteMP3TagEditor
 				{
 					if (titles[i] != titles[0]) // 最初の要素と異なる場合
 					{
-						sameTitle = false; // falseにする
+						sameTitle = false;
 						break; // ループを抜ける
 					}
 				}
@@ -546,7 +573,7 @@ namespace DLsiteMP3TagEditor
 				{
 					if (artists[i] != artists[0]) // 最初の要素と異なる場合
 					{
-						sameArtist = false; // falseにする
+						sameArtist = false;
 						break; // ループを抜ける
 					}
 				}
@@ -555,7 +582,7 @@ namespace DLsiteMP3TagEditor
 				{
 					if (years[i] != years[0]) // 最初の要素と異なる場合
 					{
-						sameYear = false; // falseにする
+						sameYear = false;
 						break; // ループを抜ける
 					}
 				}
@@ -573,7 +600,7 @@ namespace DLsiteMP3TagEditor
 				{
 					if (albums[i] != albums[0]) // 最初の要素と異なる場合
 					{
-						sameAlbum = false; // falseにする
+						sameAlbum = false;
 						break; // ループを抜ける
 					}
 				}
@@ -582,22 +609,28 @@ namespace DLsiteMP3TagEditor
 				{
 					if (albumArtists[i] != albumArtists[0]) // 最初の要素と異なる場合
 					{
-						sameAlbumArtist = false; // falseにする
+						sameAlbumArtist = false;
 						break; // ループを抜ける
 					}
-				}
-				// アルバムアートがすべて同じかどうか判定する
+				}// アルバムアートがすべて同じかどうか判定する
 				bool sameAlbumArt = true;
 				byte[] firstAlbumArtHash = ComputeSHA256(albumArts[0]);
 				for (int i = 1; i < albumArts.Count; i++)
 				{
 					byte[] currentAlbumArtHash = ComputeSHA256(albumArts[i]);
+					// nullでないことを確認する
+					if (firstAlbumArtHash == null || currentAlbumArtHash == null)
+					{
+						sameAlbumArt = false;
+						break;
+					}
 					if (!firstAlbumArtHash.SequenceEqual(currentAlbumArtHash))
 					{
 						sameAlbumArt = false;
 						break;
 					}
 				}
+
 				// テキストボックスに表示する
 				if (sameTitle) // タイトルがすべて同じ場合
 				{
@@ -685,7 +718,7 @@ namespace DLsiteMP3TagEditor
 				else // アルバムアートが異なる場合
 				{
 					mp3Picture.BackgroundImage = null; // 画像を消す
-					setLogMessage("複数の異なるアルバムアートが設定されているため、画像を表示しません。", MessageType.Warn);
+					setLogMessage("複数の異なるアルバムアートが設定されている、もしくは設定されていないため、画像を表示しません。", MessageType.Warn);
 				}
 			}
 		}
@@ -710,6 +743,12 @@ namespace DLsiteMP3TagEditor
 
 		private static byte[] ComputeSHA256(byte[] data)
 		{
+			// dataがnullの場合に何もしない
+			if (data == null || data.Length == 0)
+			{
+				return null;
+			}
+
 			using (var sha256 = new SHA256Managed())
 			{
 				return sha256.ComputeHash(data);
@@ -761,6 +800,11 @@ namespace DLsiteMP3TagEditor
 				}
 				DragAndDropExec(targetFile);
 			}
+			// 全トラック選択
+			AllMP3TracksSelect();
+
+			// タグ情報を表示
+			GetListBoxSelectedInfo();
 		}
 
 		private void DragAndDropExec(string path)
@@ -770,7 +814,6 @@ namespace DLsiteMP3TagEditor
 				// フォルダ
 				directoryText.Text = path;
 				applyMP3FilesList(path, false);
-				AllMP3TracksSelect();
 			}
 			else if (System.IO.File.Exists(path))
 			{
@@ -783,12 +826,6 @@ namespace DLsiteMP3TagEditor
 					mp3ListBox.Items.Add(Path.GetFileName(path));
 					// mp3PathListBoxにフルパスを追加
 					mp3PathListBox.Items.Add(path);
-
-					// 全トラック選択
-					AllMP3TracksSelect();
-
-					// タグ情報を表示
-					GetListBoxSelectedInfo();
 				}
 				else if ((Path.GetExtension(path).ToLower() == ".jpg" || Path.GetExtension(path).ToLower() == ".png"))
 				{
@@ -811,6 +848,8 @@ namespace DLsiteMP3TagEditor
 				// ファイル存在しない
 				setLogMessage($"ファイルが存在しません：{path}", MessageType.Error);
 			}
+
+			return;
 		}
 
 		private void searchText_KeyPress(object sender, KeyPressEventArgs e)
