@@ -2,6 +2,7 @@ using DLsiteInfoGetter;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using TagLib;
 
 namespace DLsiteMP3TagEditor
@@ -25,6 +26,16 @@ namespace DLsiteMP3TagEditor
 
 		private void Main_Load(object sender, EventArgs e)
 		{
+			if (editFolderNameCheck.Checked)
+			{
+				folderNameText.Text = "[{ProductID}] [{ProductCircle}] {ProductName}";
+				folderNameText.Enabled = true;
+			}
+			else
+			{
+				folderNameText.Enabled = false;
+			}
+
 			searchText.Focus();
 		}
 
@@ -75,12 +86,36 @@ namespace DLsiteMP3TagEditor
 		private async void writeButton_Click(object sender, EventArgs e)
 		{
 			logText.Clear();
+			string newFolderPath = directoryText.Text;
+
 			if (mp3ListBox.SelectedItems.Count == 0)
 			{
 				setLogMessage("更新対象のトラックが選択されていません。", MessageType.Error);
 				MessageBox.Show("更新対象のトラックが選択されていません。", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
+
+			// フォルダ名更新処理のみの場合はそれだけ行う
+			if (editFolderNameOnlyCheck.Checked)
+			{
+				// フォルダ名変更
+				if (editFolderNameCheck.Checked)
+				{
+					UpdateFolderName(false);
+				}
+
+				// MP3 ファイルの再読み込み
+				if (directoryText.Text.Length > 0)
+				{
+					applyMP3FilesList(directoryText.Text);
+				}
+				AllMP3TracksSelect();
+
+				// タグ情報を表示
+				GetListBoxSelectedInfo();
+				return;
+			}
+
 			if (albumText.Text.Length == 0)
 			{
 				DialogResult dr = MessageBox.Show("アルバム情報が設定されていません。\n続行しますか？", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
@@ -94,6 +129,29 @@ namespace DLsiteMP3TagEditor
 				DialogResult dr = MessageBox.Show("アーティスト情報が設定されていません。\n続行しますか？", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 				if (dr == DialogResult.No)
 				{
+					return;
+				}
+			}
+
+			if (editFolderNameCheck.Checked)
+			{
+				newFolderPath = directoryText.Text.Trim();
+				// ベースパスチェック
+				if (Directory.Exists(newFolderPath))
+				{
+					// 新パスの作成
+					newFolderPath = UpdateFolderName();
+					if (Directory.Exists(newFolderPath))
+					{
+						setLogMessage($"変更先のフォルダ名が既に存在します！ - {newFolderPath}", MessageType.Error);
+						MessageBox.Show($"変更先のフォルダ名が既に存在します！\n{newFolderPath}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						return;
+					}
+				}
+				else
+				{
+					setLogMessage($"指定したパスはフォルダではないか、存在しません。 - {newFolderPath}", MessageType.Error);
+					MessageBox.Show($"指定したパスはフォルダではないか、存在しません。\n{newFolderPath}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
 			}
@@ -113,8 +171,17 @@ namespace DLsiteMP3TagEditor
 				// タグ更新実行
 				UpdateTagInformation(selectedItems);
 
-				// タグ情報の更新が正常に完了した場合
+				// タグ情報の更新が正常に完了した場合、バックアップを削除
 				await DeteleBackupFiles(mp3PathListBox.SelectedItems);
+
+				// フォルダ名変更
+				if (editFolderNameCheck.Checked)
+				{
+					UpdateFolderName(false);
+				}
+
+				// タグの書き込みが完了したことを通知
+				MessageBox.Show("タグの更新が完了しました。", AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 				writeButton.Text = writeButtonText;
 				setLogMessage("タグ情報の更新が完了しました。", MessageType.Info);
 
@@ -271,9 +338,53 @@ namespace DLsiteMP3TagEditor
 					return;
 				}
 			}
+		}
 
-			// タグの書き込みが完了したことを通知
-			MessageBox.Show("タグの更新が完了しました。", AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		private string UpdateFolderName(bool genOnly = true, string baseFolderPath = "")
+		{
+			string resultPath = string.Empty;   // 完成フルパス
+			string resultName = string.Empty;   // 完成フォルダ名
+			string baseFolderName = baseFolderPath.Length > 0 ? baseFolderPath : directoryText.Text.Trim();  // ベースフルパス
+			if (baseFolderName.Length == 0)
+			{
+				return resultName;
+			}
+			string replaceFolderName = folderNameText.Text.Trim();
+			try
+			{
+				// 値準備
+				var checkedItems = cvCheckList.CheckedItems;
+				string[] items = new string[checkedItems.Count];
+				for (int i = 0; i < checkedItems.Count; i++)
+				{
+					items[i] = checkedItems[i].ToString();
+				}
+				string cvList = string.Join(",", items);
+
+				// フォルダ名変更
+				resultName = replaceFolderName.Replace("{ProductID}", productIDText.Text)
+				.Replace("{ProductDate}", sellTimePicker.Value.ToString("yyMMdd"))
+				.Replace("{ProductName}", albumText.Text)
+				.Replace("{ProductCircle}", circleText.Text)
+				.Replace("{ProductCVs}", cvList);
+				resultName = Regex.Replace(resultName, "[\\\\/:*?\"\"<>|]", "_");
+
+				DirectoryInfo di = new DirectoryInfo(baseFolderName);
+				resultPath = di.Parent.FullName + "\\" + resultName;
+
+				if (!genOnly)
+				{
+					Directory.Move(baseFolderName, resultPath);
+					directoryText.Text = resultPath;
+				}
+			}
+			catch (Exception ex)
+			{
+				setLogMessage($"{ex.Message}", MessageType.Error);
+				MessageBox.Show($"フォルダ名の更新中にエラーが発生しました： {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return string.Empty;
+			}
+			return resultName;
 		}
 
 		private void RevertChanges(IEnumerable<object> selectedItems)
@@ -327,7 +438,7 @@ namespace DLsiteMP3TagEditor
 				{
 					try
 					{
-						mp3ListBox.SetSelected(i, true);
+						mp3PathListBox.SetSelected(i, true);
 					}
 					catch (Exception)
 					{
@@ -386,6 +497,29 @@ namespace DLsiteMP3TagEditor
 					// mp3PathListBoxにフルパスを追加
 					mp3PathListBox.Items.Add(file);
 				}
+
+				// 検索実行
+				if (getProductIDFromPathCheck.Checked && Directory.Exists(path))
+				{
+					// 正規表現のパターン
+					string pattern = @"(RJ|VJ)\d{6,8}";
+
+					// 正規表現オブジェクトの作成
+					Regex regex = new Regex(pattern);
+
+					// ファイルパスから特定の文字を抜き出す
+					Match match = regex.Match(path);
+
+					// 抜き出した文字があれば表示する
+					if (match.Success)
+					{
+						searchText.Text = match.Value;
+						if (autoSearchProductInfoFromPathCheck.Checked && searchText.Text.Length >= 6)
+						{
+							searchButton_Click(null, null);
+						}
+					}
+				}
 			}
 			catch (Exception ex)
 			{
@@ -413,6 +547,7 @@ namespace DLsiteMP3TagEditor
 			{
 				DLsiteInfo result = DLsiteInfo.GetInfo(searchText.Text.Trim());
 
+				productIDText.Text = result.ProductId;
 				productText.Text = result.Title;
 				circleText.Text = result.Circle;
 				sellTimePicker.Value = result.SellDate;
@@ -431,6 +566,8 @@ namespace DLsiteMP3TagEditor
 				setLogMessage(ex.Message, MessageType.Error);
 				MessageBox.Show($"予期せぬエラーが発生しました。\n\n{ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+
+			searchText.Clear();
 			return;
 		}
 
@@ -612,7 +749,8 @@ namespace DLsiteMP3TagEditor
 						sameAlbumArtist = false;
 						break; // ループを抜ける
 					}
-				}// アルバムアートがすべて同じかどうか判定する
+				}
+				// アルバムアートがすべて同じかどうか判定する
 				bool sameAlbumArt = true;
 				byte[] firstAlbumArtHash = ComputeSHA256(albumArts[0]);
 				for (int i = 1; i < albumArts.Count; i++)
@@ -720,6 +858,10 @@ namespace DLsiteMP3TagEditor
 					mp3Picture.BackgroundImage = null; // 画像を消す
 					setLogMessage("複数の異なるアルバムアートが設定されている、もしくは設定されていないため、画像を表示しません。", MessageType.Warn);
 				}
+			}
+			else
+			{
+				setLogMessage("該当パスにmp3ファイルが含まれていません。", MessageType.Warn);
 			}
 		}
 
@@ -867,6 +1009,28 @@ namespace DLsiteMP3TagEditor
 				applyMP3FilesList(directoryText.Text.Trim());
 				AllMP3TracksSelect();
 			}
+		}
+
+		private void editFolderNameCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			bool status = editFolderNameCheck.Checked;
+
+			folderNameText.Enabled = status;
+			editFolderNameOnlyCheck.Enabled = status;
+			folderNameEditHelpButton.Enabled = status;
+		}
+
+		private void folderNameEditHelpButton_Click(object sender, EventArgs e)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("{ProductID}：作品ID");
+			sb.Append("\n{ProductDate}：販売日（yyMMdd形式）");
+			sb.Append("\n{ProductName}：作品名");
+			sb.Append("\n{ProductCircle}：サークル名");
+			sb.Append("\n{ProductCVs}：声優");
+			sb.Append("\n\n予定フォルダ名：");
+			sb.Append("\n" + UpdateFolderName());
+			MessageBox.Show(sb.ToString(), this.Text);
 		}
 	}
 }

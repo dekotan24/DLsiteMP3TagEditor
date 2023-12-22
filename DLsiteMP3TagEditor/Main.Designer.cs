@@ -28,7 +28,10 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.productIDText = new System.Windows.Forms.TextBox();
+			this.label14 = new System.Windows.Forms.Label();
 			this.applyButton = new System.Windows.Forms.Button();
 			this.genreRadio = new System.Windows.Forms.RadioButton();
 			this.label6 = new System.Windows.Forms.Label();
@@ -45,6 +48,10 @@
 			this.searchText = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.editFolderNameOnlyCheck = new System.Windows.Forms.CheckBox();
+			this.folderNameEditHelpButton = new System.Windows.Forms.Button();
+			this.folderNameText = new System.Windows.Forms.TextBox();
+			this.editFolderNameCheck = new System.Windows.Forms.CheckBox();
 			this.keepOriginCheck = new System.Windows.Forms.CheckBox();
 			this.yearText = new System.Windows.Forms.NumericUpDown();
 			this.albumArtistText = new System.Windows.Forms.TextBox();
@@ -67,6 +74,8 @@
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.logText = new System.Windows.Forms.RichTextBox();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.autoSearchProductInfoFromPathCheck = new System.Windows.Forms.CheckBox();
+			this.getProductIDFromPathCheck = new System.Windows.Forms.CheckBox();
 			this.mp3PathListBox = new System.Windows.Forms.ListBox();
 			this.mp3ListBox = new System.Windows.Forms.ListBox();
 			this.groupBox1.SuspendLayout();
@@ -80,6 +89,8 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.productIDText);
+			this.groupBox1.Controls.Add(this.label14);
 			this.groupBox1.Controls.Add(this.applyButton);
 			this.groupBox1.Controls.Add(this.genreRadio);
 			this.groupBox1.Controls.Add(this.label6);
@@ -102,13 +113,30 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "DLsite";
 			// 
+			// productIDText
+			// 
+			this.productIDText.Location = new System.Drawing.Point(403, 151);
+			this.productIDText.Name = "productIDText";
+			this.productIDText.ReadOnly = true;
+			this.productIDText.Size = new System.Drawing.Size(68, 23);
+			this.productIDText.TabIndex = 8;
+			// 
+			// label14
+			// 
+			this.label14.AutoSize = true;
+			this.label14.Location = new System.Drawing.Point(403, 133);
+			this.label14.Name = "label14";
+			this.label14.Size = new System.Drawing.Size(42, 15);
+			this.label14.TabIndex = 14;
+			this.label14.Text = "作品ID";
+			// 
 			// applyButton
 			// 
 			this.applyButton.Font = new System.Drawing.Font("メイリオ", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
 			this.applyButton.Location = new System.Drawing.Point(477, 151);
 			this.applyButton.Name = "applyButton";
 			this.applyButton.Size = new System.Drawing.Size(109, 40);
-			this.applyButton.TabIndex = 8;
+			this.applyButton.TabIndex = 9;
 			this.applyButton.Text = "↓反映↓";
 			this.applyButton.UseVisualStyleBackColor = true;
 			this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
@@ -130,7 +158,7 @@
 			this.label6.AutoSize = true;
 			this.label6.Location = new System.Drawing.Point(518, 89);
 			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(48, 15);
+			this.label6.Size = new System.Drawing.Size(44, 15);
 			this.label6.TabIndex = 12;
 			this.label6.Text = "ジャンル";
 			// 
@@ -139,7 +167,7 @@
 			this.cvCheckList.FormattingEnabled = true;
 			this.cvCheckList.Location = new System.Drawing.Point(162, 151);
 			this.cvCheckList.Name = "cvCheckList";
-			this.cvCheckList.Size = new System.Drawing.Size(309, 40);
+			this.cvCheckList.Size = new System.Drawing.Size(235, 40);
 			this.cvCheckList.TabIndex = 7;
 			// 
 			// label5
@@ -147,7 +175,7 @@
 			this.label5.AutoSize = true;
 			this.label5.Location = new System.Drawing.Point(162, 133);
 			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(33, 15);
+			this.label5.Size = new System.Drawing.Size(31, 15);
 			this.label5.TabIndex = 10;
 			this.label5.Text = "声優";
 			// 
@@ -163,7 +191,7 @@
 			this.label4.AutoSize = true;
 			this.label4.Location = new System.Drawing.Point(403, 89);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(46, 15);
+			this.label4.Size = new System.Drawing.Size(43, 15);
 			this.label4.TabIndex = 8;
 			this.label4.Text = "販売日";
 			// 
@@ -179,7 +207,7 @@
 			this.label3.AutoSize = true;
 			this.label3.Location = new System.Drawing.Point(162, 89);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(62, 15);
+			this.label3.Size = new System.Drawing.Size(56, 15);
 			this.label3.TabIndex = 6;
 			this.label3.Text = "サークル名";
 			// 
@@ -195,7 +223,7 @@
 			this.label2.AutoSize = true;
 			this.label2.Location = new System.Drawing.Point(162, 45);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(46, 15);
+			this.label2.Size = new System.Drawing.Size(43, 15);
 			this.label2.TabIndex = 4;
 			this.label2.Text = "作品名";
 			// 
@@ -237,6 +265,10 @@
 			// 
 			// groupBox2
 			// 
+			this.groupBox2.Controls.Add(this.editFolderNameOnlyCheck);
+			this.groupBox2.Controls.Add(this.folderNameEditHelpButton);
+			this.groupBox2.Controls.Add(this.folderNameText);
+			this.groupBox2.Controls.Add(this.editFolderNameCheck);
 			this.groupBox2.Controls.Add(this.keepOriginCheck);
 			this.groupBox2.Controls.Add(this.yearText);
 			this.groupBox2.Controls.Add(this.albumArtistText);
@@ -252,20 +284,60 @@
 			this.groupBox2.Controls.Add(this.label9);
 			this.groupBox2.Controls.Add(this.mp3Picture);
 			this.groupBox2.Controls.Add(this.label8);
-			this.groupBox2.Location = new System.Drawing.Point(12, 237);
+			this.groupBox2.Location = new System.Drawing.Point(12, 233);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(592, 207);
+			this.groupBox2.Size = new System.Drawing.Size(592, 236);
 			this.groupBox2.TabIndex = 1;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "MP3";
+			// 
+			// editFolderNameOnlyCheck
+			// 
+			this.editFolderNameOnlyCheck.AutoSize = true;
+			this.editFolderNameOnlyCheck.Location = new System.Drawing.Point(114, 203);
+			this.editFolderNameOnlyCheck.Name = "editFolderNameOnlyCheck";
+			this.editFolderNameOnlyCheck.Size = new System.Drawing.Size(47, 19);
+			this.editFolderNameOnlyCheck.TabIndex = 31;
+			this.editFolderNameOnlyCheck.Text = "のみ";
+			this.editFolderNameOnlyCheck.UseVisualStyleBackColor = true;
+			// 
+			// folderNameEditHelpButton
+			// 
+			this.folderNameEditHelpButton.Location = new System.Drawing.Point(562, 201);
+			this.folderNameEditHelpButton.Name = "folderNameEditHelpButton";
+			this.folderNameEditHelpButton.Size = new System.Drawing.Size(24, 23);
+			this.folderNameEditHelpButton.TabIndex = 29;
+			this.folderNameEditHelpButton.Text = "?";
+			this.folderNameEditHelpButton.UseVisualStyleBackColor = true;
+			this.folderNameEditHelpButton.Click += new System.EventHandler(this.folderNameEditHelpButton_Click);
+			// 
+			// folderNameText
+			// 
+			this.folderNameText.Location = new System.Drawing.Point(162, 201);
+			this.folderNameText.Name = "folderNameText";
+			this.folderNameText.Size = new System.Drawing.Size(394, 23);
+			this.folderNameText.TabIndex = 28;
+			// 
+			// editFolderNameCheck
+			// 
+			this.editFolderNameCheck.AutoSize = true;
+			this.editFolderNameCheck.Checked = true;
+			this.editFolderNameCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.editFolderNameCheck.Location = new System.Drawing.Point(4, 203);
+			this.editFolderNameCheck.Name = "editFolderNameCheck";
+			this.editFolderNameCheck.Size = new System.Drawing.Size(106, 19);
+			this.editFolderNameCheck.TabIndex = 27;
+			this.editFolderNameCheck.Text = "フォルダ名を変更";
+			this.editFolderNameCheck.UseVisualStyleBackColor = true;
+			this.editFolderNameCheck.CheckedChanged += new System.EventHandler(this.editFolderNameCheck_CheckedChanged);
 			// 
 			// keepOriginCheck
 			// 
 			this.keepOriginCheck.AutoSize = true;
 			this.keepOriginCheck.Location = new System.Drawing.Point(32, 178);
 			this.keepOriginCheck.Name = "keepOriginCheck";
-			this.keepOriginCheck.Size = new System.Drawing.Size(101, 19);
-			this.keepOriginCheck.TabIndex = 16;
+			this.keepOriginCheck.Size = new System.Drawing.Size(95, 19);
+			this.keepOriginCheck.TabIndex = 26;
 			this.keepOriginCheck.Text = "元画像を維持";
 			this.keepOriginCheck.UseVisualStyleBackColor = true;
 			// 
@@ -284,7 +356,7 @@
             0});
 			this.yearText.Name = "yearText";
 			this.yearText.Size = new System.Drawing.Size(57, 23);
-			this.yearText.TabIndex = 12;
+			this.yearText.TabIndex = 22;
 			this.yearText.Value = new decimal(new int[] {
             2023,
             0,
@@ -296,21 +368,21 @@
 			this.albumArtistText.Location = new System.Drawing.Point(162, 172);
 			this.albumArtistText.Name = "albumArtistText";
 			this.albumArtistText.Size = new System.Drawing.Size(285, 23);
-			this.albumArtistText.TabIndex = 15;
+			this.albumArtistText.TabIndex = 25;
 			// 
 			// albumText
 			// 
 			this.albumText.Location = new System.Drawing.Point(162, 128);
 			this.albumText.Name = "albumText";
 			this.albumText.Size = new System.Drawing.Size(285, 23);
-			this.albumText.TabIndex = 14;
+			this.albumText.TabIndex = 24;
 			// 
 			// genreText
 			// 
 			this.genreText.Location = new System.Drawing.Point(516, 84);
 			this.genreText.Name = "genreText";
 			this.genreText.Size = new System.Drawing.Size(70, 23);
-			this.genreText.TabIndex = 13;
+			this.genreText.TabIndex = 23;
 			this.genreText.Text = "ASMR";
 			// 
 			// artistText
@@ -318,14 +390,14 @@
 			this.artistText.Location = new System.Drawing.Point(162, 84);
 			this.artistText.Name = "artistText";
 			this.artistText.Size = new System.Drawing.Size(285, 23);
-			this.artistText.TabIndex = 11;
+			this.artistText.TabIndex = 21;
 			// 
 			// titleText
 			// 
 			this.titleText.Location = new System.Drawing.Point(162, 40);
 			this.titleText.Name = "titleText";
 			this.titleText.Size = new System.Drawing.Size(424, 23);
-			this.titleText.TabIndex = 10;
+			this.titleText.TabIndex = 20;
 			// 
 			// writeButton
 			// 
@@ -333,7 +405,7 @@
 			this.writeButton.Location = new System.Drawing.Point(453, 128);
 			this.writeButton.Name = "writeButton";
 			this.writeButton.Size = new System.Drawing.Size(133, 67);
-			this.writeButton.TabIndex = 17;
+			this.writeButton.TabIndex = 30;
 			this.writeButton.Text = "◆書込◆";
 			this.writeButton.UseVisualStyleBackColor = true;
 			this.writeButton.Click += new System.EventHandler(this.writeButton_Click);
@@ -343,7 +415,7 @@
 			this.label13.AutoSize = true;
 			this.label13.Location = new System.Drawing.Point(162, 154);
 			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(107, 15);
+			this.label13.Size = new System.Drawing.Size(95, 15);
 			this.label13.TabIndex = 9;
 			this.label13.Text = "アルバムアーティスト";
 			// 
@@ -352,7 +424,7 @@
 			this.label12.AutoSize = true;
 			this.label12.Location = new System.Drawing.Point(516, 66);
 			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(48, 15);
+			this.label12.Size = new System.Drawing.Size(44, 15);
 			this.label12.TabIndex = 8;
 			this.label12.Text = "ジャンル";
 			// 
@@ -361,7 +433,7 @@
 			this.label11.AutoSize = true;
 			this.label11.Location = new System.Drawing.Point(453, 66);
 			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(20, 15);
+			this.label11.Size = new System.Drawing.Size(19, 15);
 			this.label11.TabIndex = 7;
 			this.label11.Text = "年";
 			// 
@@ -370,7 +442,7 @@
 			this.label10.AutoSize = true;
 			this.label10.Location = new System.Drawing.Point(162, 110);
 			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(50, 15);
+			this.label10.Size = new System.Drawing.Size(45, 15);
 			this.label10.TabIndex = 6;
 			this.label10.Text = "アルバム";
 			// 
@@ -379,7 +451,7 @@
 			this.label9.AutoSize = true;
 			this.label9.Location = new System.Drawing.Point(162, 66);
 			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(64, 15);
+			this.label9.Size = new System.Drawing.Size(57, 15);
 			this.label9.TabIndex = 5;
 			this.label9.Text = "アーティスト";
 			// 
@@ -397,7 +469,7 @@
 			this.label8.AutoSize = true;
 			this.label8.Location = new System.Drawing.Point(162, 22);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(45, 15);
+			this.label8.Size = new System.Drawing.Size(43, 15);
 			this.label8.TabIndex = 3;
 			this.label8.Text = "タイトル";
 			// 
@@ -406,7 +478,7 @@
 			this.directorySearchButton.Location = new System.Drawing.Point(395, 20);
 			this.directorySearchButton.Name = "directorySearchButton";
 			this.directorySearchButton.Size = new System.Drawing.Size(23, 23);
-			this.directorySearchButton.TabIndex = 19;
+			this.directorySearchButton.TabIndex = 11;
 			this.directorySearchButton.Text = "..";
 			this.directorySearchButton.UseVisualStyleBackColor = true;
 			this.directorySearchButton.Click += new System.EventHandler(this.directorySearchButton_Click);
@@ -416,7 +488,7 @@
 			this.directoryText.Location = new System.Drawing.Point(73, 20);
 			this.directoryText.Name = "directoryText";
 			this.directoryText.Size = new System.Drawing.Size(316, 23);
-			this.directoryText.TabIndex = 18;
+			this.directoryText.TabIndex = 10;
 			this.directoryText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.directoryText_KeyPress);
 			// 
 			// label7
@@ -424,14 +496,14 @@
 			this.label7.AutoSize = true;
 			this.label7.Location = new System.Drawing.Point(6, 24);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(61, 15);
+			this.label7.Size = new System.Drawing.Size(57, 15);
 			this.label7.TabIndex = 0;
 			this.label7.Text = "ディレクトリ";
 			// 
 			// groupBox3
 			// 
 			this.groupBox3.Controls.Add(this.logText);
-			this.groupBox3.Location = new System.Drawing.Point(12, 450);
+			this.groupBox3.Location = new System.Drawing.Point(12, 476);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Size = new System.Drawing.Size(592, 147);
 			this.groupBox3.TabIndex = 2;
@@ -444,11 +516,13 @@
 			this.logText.Name = "logText";
 			this.logText.ReadOnly = true;
 			this.logText.Size = new System.Drawing.Size(579, 119);
-			this.logText.TabIndex = 22;
+			this.logText.TabIndex = 31;
 			this.logText.Text = "";
 			// 
 			// groupBox4
 			// 
+			this.groupBox4.Controls.Add(this.autoSearchProductInfoFromPathCheck);
+			this.groupBox4.Controls.Add(this.getProductIDFromPathCheck);
 			this.groupBox4.Controls.Add(this.mp3PathListBox);
 			this.groupBox4.Controls.Add(this.mp3ListBox);
 			this.groupBox4.Controls.Add(this.label7);
@@ -456,21 +530,45 @@
 			this.groupBox4.Controls.Add(this.directorySearchButton);
 			this.groupBox4.Location = new System.Drawing.Point(610, 12);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(424, 585);
+			this.groupBox4.Size = new System.Drawing.Size(424, 611);
 			this.groupBox4.TabIndex = 3;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "mp3 files";
+			// 
+			// autoSearchProductInfoFromPathCheck
+			// 
+			this.autoSearchProductInfoFromPathCheck.AutoSize = true;
+			this.autoSearchProductInfoFromPathCheck.Checked = true;
+			this.autoSearchProductInfoFromPathCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.autoSearchProductInfoFromPathCheck.Location = new System.Drawing.Point(227, 53);
+			this.autoSearchProductInfoFromPathCheck.Name = "autoSearchProductInfoFromPathCheck";
+			this.autoSearchProductInfoFromPathCheck.Size = new System.Drawing.Size(174, 19);
+			this.autoSearchProductInfoFromPathCheck.TabIndex = 15;
+			this.autoSearchProductInfoFromPathCheck.Text = "IDの抽出に合わせて検索を行う";
+			this.autoSearchProductInfoFromPathCheck.UseVisualStyleBackColor = true;
+			// 
+			// getProductIDFromPathCheck
+			// 
+			this.getProductIDFromPathCheck.AutoSize = true;
+			this.getProductIDFromPathCheck.Checked = true;
+			this.getProductIDFromPathCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.getProductIDFromPathCheck.Location = new System.Drawing.Point(27, 53);
+			this.getProductIDFromPathCheck.Name = "getProductIDFromPathCheck";
+			this.getProductIDFromPathCheck.Size = new System.Drawing.Size(185, 19);
+			this.getProductIDFromPathCheck.TabIndex = 14;
+			this.getProductIDFromPathCheck.Text = "ファイルパスから作品IDを抽出する";
+			this.getProductIDFromPathCheck.UseVisualStyleBackColor = true;
 			// 
 			// mp3PathListBox
 			// 
 			this.mp3PathListBox.FormattingEnabled = true;
 			this.mp3PathListBox.HorizontalScrollbar = true;
 			this.mp3PathListBox.ItemHeight = 15;
-			this.mp3PathListBox.Location = new System.Drawing.Point(6, 320);
+			this.mp3PathListBox.Location = new System.Drawing.Point(6, 347);
 			this.mp3PathListBox.Name = "mp3PathListBox";
 			this.mp3PathListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
 			this.mp3PathListBox.Size = new System.Drawing.Size(412, 259);
-			this.mp3PathListBox.TabIndex = 3;
+			this.mp3PathListBox.TabIndex = 13;
 			this.mp3PathListBox.SelectedIndexChanged += new System.EventHandler(this.mp3PathListBox_SelectedIndexChanged);
 			// 
 			// mp3ListBox
@@ -478,11 +576,11 @@
 			this.mp3ListBox.FormattingEnabled = true;
 			this.mp3ListBox.HorizontalScrollbar = true;
 			this.mp3ListBox.ItemHeight = 15;
-			this.mp3ListBox.Location = new System.Drawing.Point(6, 52);
+			this.mp3ListBox.Location = new System.Drawing.Point(6, 82);
 			this.mp3ListBox.Name = "mp3ListBox";
 			this.mp3ListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
 			this.mp3ListBox.Size = new System.Drawing.Size(412, 259);
-			this.mp3ListBox.TabIndex = 0;
+			this.mp3ListBox.TabIndex = 12;
 			this.mp3ListBox.SelectedIndexChanged += new System.EventHandler(this.mp3ListBox_SelectedIndexChanged);
 			// 
 			// Main
@@ -490,12 +588,13 @@
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1046, 604);
+			this.ClientSize = new System.Drawing.Size(1046, 635);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.Name = "Main";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -560,5 +659,13 @@
 		private ListBox mp3ListBox;
 		private ListBox mp3PathListBox;
 		private CheckBox keepOriginCheck;
+		private TextBox folderNameText;
+		private CheckBox editFolderNameCheck;
+		private Button folderNameEditHelpButton;
+		private TextBox productIDText;
+		private Label label14;
+		private CheckBox autoSearchProductInfoFromPathCheck;
+		private CheckBox getProductIDFromPathCheck;
+		private CheckBox editFolderNameOnlyCheck;
 	}
 }
