@@ -642,7 +642,7 @@ namespace DLsiteMP3TagEditor
 		private void GetListBoxSelectedInfo()
 		{
 			MP3ItemClear();
-			logText.Clear();
+			// logText.Clear();
 			if (mp3ListBox.SelectedItems.Count != 0)
 			{
 				// 選択されたファイルのタグ情報をリストに格納する
@@ -1031,6 +1031,18 @@ namespace DLsiteMP3TagEditor
 			sb.Append("\n\n予定フォルダ名：");
 			sb.Append("\n" + UpdateFolderName());
 			MessageBox.Show(sb.ToString(), this.Text);
+		}
+
+		private void getProductIDFromPathCheck_CheckedChanged(object sender, EventArgs e)
+		{
+			if (getProductIDFromPathCheck.Checked)
+			{
+				autoSearchProductInfoFromPathCheck.Enabled = true;
+			}
+			else
+			{
+				autoSearchProductInfoFromPathCheck.Enabled = false;
+			}
 		}
 	}
 }

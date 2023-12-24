@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.productIDText = new System.Windows.Forms.TextBox();
@@ -78,6 +79,7 @@
 			this.getProductIDFromPathCheck = new System.Windows.Forms.CheckBox();
 			this.mp3PathListBox = new System.Windows.Forms.ListBox();
 			this.mp3ListBox = new System.Windows.Forms.ListBox();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dlsitePicture)).BeginInit();
 			this.groupBox2.SuspendLayout();
@@ -299,6 +301,7 @@
 			this.editFolderNameOnlyCheck.Size = new System.Drawing.Size(47, 19);
 			this.editFolderNameOnlyCheck.TabIndex = 31;
 			this.editFolderNameOnlyCheck.Text = "のみ";
+			this.toolTip1.SetToolTip(this.editFolderNameOnlyCheck, "フォルダ名のみを更新します");
 			this.editFolderNameOnlyCheck.UseVisualStyleBackColor = true;
 			// 
 			// folderNameEditHelpButton
@@ -328,6 +331,7 @@
 			this.editFolderNameCheck.Size = new System.Drawing.Size(106, 19);
 			this.editFolderNameCheck.TabIndex = 27;
 			this.editFolderNameCheck.Text = "フォルダ名を変更";
+			this.toolTip1.SetToolTip(this.editFolderNameCheck, "フォルダ名を更新します");
 			this.editFolderNameCheck.UseVisualStyleBackColor = true;
 			this.editFolderNameCheck.CheckedChanged += new System.EventHandler(this.editFolderNameCheck_CheckedChanged);
 			// 
@@ -339,6 +343,7 @@
 			this.keepOriginCheck.Size = new System.Drawing.Size(95, 19);
 			this.keepOriginCheck.TabIndex = 26;
 			this.keepOriginCheck.Text = "元画像を維持";
+			this.toolTip1.SetToolTip(this.keepOriginCheck, "アルバムアートを更新しません");
 			this.keepOriginCheck.UseVisualStyleBackColor = true;
 			// 
 			// yearText
@@ -558,6 +563,7 @@
 			this.getProductIDFromPathCheck.TabIndex = 14;
 			this.getProductIDFromPathCheck.Text = "ファイルパスから作品IDを抽出する";
 			this.getProductIDFromPathCheck.UseVisualStyleBackColor = true;
+			this.getProductIDFromPathCheck.CheckedChanged += new System.EventHandler(this.getProductIDFromPathCheck_CheckedChanged);
 			// 
 			// mp3PathListBox
 			// 
@@ -667,5 +673,6 @@
 		private CheckBox autoSearchProductInfoFromPathCheck;
 		private CheckBox getProductIDFromPathCheck;
 		private CheckBox editFolderNameOnlyCheck;
+		private ToolTip toolTip1;
 	}
 }
