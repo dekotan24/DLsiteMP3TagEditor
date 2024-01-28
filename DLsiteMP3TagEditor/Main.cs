@@ -53,7 +53,7 @@ namespace DLsiteMP3TagEditor
 				// チェックされたアイテムのtextを出力する
 				if (sbCVText.Length != 0)
 				{
-					sbCVText.Append(", ");
+					sbCVText.Append(';');
 				}
 				sbCVText.Append(item.ToString());
 			}
@@ -88,7 +88,7 @@ namespace DLsiteMP3TagEditor
 			logText.Clear();
 			string newFolderPath = directoryText.Text;
 
-			if (mp3ListBox.SelectedItems.Count == 0)
+			if (mp3ListBox.SelectedItems.Count == 0 && !editFolderNameOnlyCheck.Checked)
 			{
 				setLogMessage("更新対象のトラックが選択されていません。", MessageType.Error);
 				MessageBox.Show("更新対象のトラックが選択されていません。", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);

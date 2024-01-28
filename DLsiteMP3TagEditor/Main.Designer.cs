@@ -66,7 +66,6 @@
 			this.label11 = new System.Windows.Forms.Label();
 			this.label10 = new System.Windows.Forms.Label();
 			this.label9 = new System.Windows.Forms.Label();
-			this.mp3Picture = new System.Windows.Forms.PictureBox();
 			this.label8 = new System.Windows.Forms.Label();
 			this.directorySearchButton = new System.Windows.Forms.Button();
 			this.directoryText = new System.Windows.Forms.TextBox();
@@ -80,13 +79,14 @@
 			this.mp3PathListBox = new System.Windows.Forms.ListBox();
 			this.mp3ListBox = new System.Windows.Forms.ListBox();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.mp3Picture = new System.Windows.Forms.PictureBox();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dlsitePicture)).BeginInit();
 			this.groupBox2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.yearText)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.mp3Picture)).BeginInit();
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.mp3Picture)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// groupBox1
@@ -343,7 +343,7 @@
 			this.keepOriginCheck.Size = new System.Drawing.Size(95, 19);
 			this.keepOriginCheck.TabIndex = 26;
 			this.keepOriginCheck.Text = "元画像を維持";
-			this.toolTip1.SetToolTip(this.keepOriginCheck, "アルバムアートを更新しません");
+			this.toolTip1.SetToolTip(this.keepOriginCheck, "現在のmp3のアルバムアートを維持します");
 			this.keepOriginCheck.UseVisualStyleBackColor = true;
 			// 
 			// yearText
@@ -459,15 +459,6 @@
 			this.label9.Size = new System.Drawing.Size(57, 15);
 			this.label9.TabIndex = 5;
 			this.label9.Text = "アーティスト";
-			// 
-			// mp3Picture
-			// 
-			this.mp3Picture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-			this.mp3Picture.Location = new System.Drawing.Point(6, 22);
-			this.mp3Picture.Name = "mp3Picture";
-			this.mp3Picture.Size = new System.Drawing.Size(150, 150);
-			this.mp3Picture.TabIndex = 4;
-			this.mp3Picture.TabStop = false;
 			// 
 			// label8
 			// 
@@ -589,6 +580,15 @@
 			this.mp3ListBox.TabIndex = 12;
 			this.mp3ListBox.SelectedIndexChanged += new System.EventHandler(this.mp3ListBox_SelectedIndexChanged);
 			// 
+			// mp3Picture
+			// 
+			this.mp3Picture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.mp3Picture.Location = new System.Drawing.Point(6, 22);
+			this.mp3Picture.Name = "mp3Picture";
+			this.mp3Picture.Size = new System.Drawing.Size(150, 150);
+			this.mp3Picture.TabIndex = 4;
+			this.mp3Picture.TabStop = false;
+			// 
 			// Main
 			// 
 			this.AllowDrop = true;
@@ -614,10 +614,10 @@
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.yearText)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.mp3Picture)).EndInit();
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox4.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.mp3Picture)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -653,7 +653,6 @@
 		private Label label11;
 		private Label label10;
 		private Label label9;
-		private PictureBox mp3Picture;
 		private Label label8;
 		private Button directorySearchButton;
 		private TextBox directoryText;
@@ -674,5 +673,6 @@
 		private CheckBox getProductIDFromPathCheck;
 		private CheckBox editFolderNameOnlyCheck;
 		private ToolTip toolTip1;
+		private PictureBox mp3Picture;
 	}
 }
