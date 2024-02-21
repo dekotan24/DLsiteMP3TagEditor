@@ -1,5 +1,6 @@
 # DLsiteMP3TagEditor
 DLsiteの作品情報を元にmp3ファイルのタグを置き換えるツール
+![image](https://github.com/dekotan24/DLsiteMP3TagEditor/assets/27037519/352dedfd-bed2-4180-ac8a-916904a75585)
 
 
 ## 開発環境
