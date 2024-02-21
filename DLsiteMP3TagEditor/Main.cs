@@ -362,10 +362,10 @@ namespace DLsiteMP3TagEditor
 				string cvList = string.Join(",", items);
 
 				// フォルダ名変更
-				resultName = replaceFolderName.Replace("{ProductID}", productIDText.Text)
+				resultName = replaceFolderName.Replace("{ProductID}", productIDText.Text.Trim())
 				.Replace("{ProductDate}", sellTimePicker.Value.ToString("yyMMdd"))
-				.Replace("{ProductName}", titleText.Text)
-				.Replace("{ProductCircle}", circleText.Text)
+				.Replace("{ProductName}", albumText.Text.Trim())
+				.Replace("{ProductCircle}", circleText.Text.Trim())
 				.Replace("{ProductCVs}", cvList);
 				resultName = Regex.Replace(resultName, "[\\\\/:*?\"\"<>|]", "_");
 
