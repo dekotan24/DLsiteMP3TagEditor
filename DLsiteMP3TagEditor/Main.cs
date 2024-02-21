@@ -364,7 +364,7 @@ namespace DLsiteMP3TagEditor
 				// フォルダ名変更
 				resultName = replaceFolderName.Replace("{ProductID}", productIDText.Text)
 				.Replace("{ProductDate}", sellTimePicker.Value.ToString("yyMMdd"))
-				.Replace("{ProductName}", albumText.Text)
+				.Replace("{ProductName}", titleText.Text)
 				.Replace("{ProductCircle}", circleText.Text)
 				.Replace("{ProductCVs}", cvList);
 				resultName = Regex.Replace(resultName, "[\\\\/:*?\"\"<>|]", "_");
@@ -533,19 +533,28 @@ namespace DLsiteMP3TagEditor
 		private void searchButton_Click(object sender, EventArgs e)
 		{
 			logText.Clear();
-			if (searchText.Text.Trim().Length < 8)
-			{
-				setLogMessage("URLもしくはIDが一定桁数を満たしていません。", MessageType.Error);
-				MessageBox.Show("URLもしくはIDが不正です。\n\n例：\nID形式：『RJ343328』\nURL形式：『https://www.dlsite.com/home/work/=/product_id/RJ343328.html』", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				searchText.Focus();
-				return;
-			}
-
-			DLsiteItemClear();
+			string productId = searchText.Text.Trim();
 
 			try
 			{
-				DLsiteInfo result = DLsiteInfo.GetInfo(searchText.Text.Trim());
+				// 数字のみか判定する
+				if (Regex.IsMatch(productId, @"^\d+$"))
+				{
+					// 数字のみの場合、RJを追加
+					productId = "RJ" + productId;
+				}
+				if (productId.Length < 8)
+				{
+					setLogMessage("URLもしくはIDが一定桁数を満たしていません。", MessageType.Error);
+					MessageBox.Show("URLもしくはIDが不正です。\n\n例：\nID形式：『RJ343328』\nURL形式：『https://www.dlsite.com/home/work/=/product_id/RJ343328.html』", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					searchText.Focus();
+					return;
+				}
+
+				DLsiteItemClear();
+
+				// データ取得
+				DLsiteInfo result = DLsiteInfo.GetInfo(productId);
 
 				productIDText.Text = result.ProductId;
 				productText.Text = result.Title;
@@ -1042,6 +1051,24 @@ namespace DLsiteMP3TagEditor
 			else
 			{
 				autoSearchProductInfoFromPathCheck.Enabled = false;
+			}
+		}
+
+		private void dlsitePicture_Click(object sender, EventArgs e)
+		{
+			if (dlsitePicture.BackgroundImage != null)
+			{
+				ImageViewer iv = new ImageViewer(dlsitePicture.BackgroundImage);
+				iv.ShowDialog();
+			}
+		}
+
+		private void mp3Picture_Click(object sender, EventArgs e)
+		{
+			if (mp3Picture.BackgroundImage != null)
+			{
+				ImageViewer iv = new ImageViewer(mp3Picture.BackgroundImage);
+				iv.ShowDialog();
 			}
 		}
 	}
