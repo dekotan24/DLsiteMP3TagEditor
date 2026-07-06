@@ -1,4 +1,4 @@
-using DLsiteInfoGetter;
+ï»¿using DLsiteInfoGetter;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,13 +12,20 @@ namespace DLsiteMP3TagEditor
 		private static string AppName = "DLsite MP3 Tag Editor";
 		private bool mp3InfoGetFlg = true;
 		private bool updating = false;
+		/// <summary>
+		/// ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰è¨­å®šã®ä¿å­˜å…ˆ
+		/// </summary>
+		private static readonly string darkModeSettingPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DLsiteMP3TagEditor", "darkmode.cfg");
+		/// <summary>
+		/// ãƒ†ãƒ¼ãƒã«å¿œã˜ãŸå…¥åŠ›æ¬„ã®èƒŒæ™¯è‰²
+		/// </summary>
+		private Color InputBackColor => DarkTheme.IsDark ? DarkTheme.ColorInput : SystemColors.Window;
 		private enum MessageType
 		{
 			Info,
 			Warn,
 			Error
 		};
-
 		public Main()
 		{
 			InitializeComponent();
@@ -26,6 +33,13 @@ namespace DLsiteMP3TagEditor
 
 		private void Main_Load(object sender, EventArgs e)
 		{
+			// ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰è¨­å®šã®å¾©å…ƒ
+			if (LoadDarkModeSetting())
+			{
+				DarkTheme.Apply(this, true);
+			}
+			UpdateThemeButtonText();
+
 			if (editFolderNameCheck.Checked)
 			{
 				folderNameText.Text = "[{ProductID}] [{ProductCircle}] {ProductName}";
@@ -40,17 +54,17 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// æ“¾‚µ‚½ƒf[ƒ^‚ğmp3ƒf[ƒ^ƒtƒB[ƒ‹ƒh‚É“K—p‚µ‚Ü‚·B
+		/// å–å¾—ã—ãŸãƒ‡ãƒ¼ã‚¿ã‚’mp3ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã«é©ç”¨ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void applyButton_Click(object sender, EventArgs e)
 		{
 			StringBuilder sbCVText = new StringBuilder();
-			// ƒ`ƒFƒbƒN‚³‚ê‚½ƒAƒCƒeƒ€‚ğˆ—‚·‚é
+			// ãƒã‚§ãƒƒã‚¯ã•ã‚ŒãŸã‚¢ã‚¤ãƒ†ãƒ ã‚’å‡¦ç†ã™ã‚‹
 			foreach (object item in cvCheckList.CheckedItems)
 			{
-				// ƒ`ƒFƒbƒN‚³‚ê‚½ƒAƒCƒeƒ€‚Ìtext‚ğo—Í‚·‚é
+				// ãƒã‚§ãƒƒã‚¯ã•ã‚ŒãŸã‚¢ã‚¤ãƒ†ãƒ ã®textã‚’å‡ºåŠ›ã™ã‚‹
 				if (sbCVText.Length != 0)
 				{
 					sbCVText.Append(';');
@@ -58,24 +72,24 @@ namespace DLsiteMP3TagEditor
 				sbCVText.Append(item.ToString());
 			}
 			artistText.Text = sbCVText.ToString();
-			artistText.BackColor = SystemColors.Window;
+			artistText.BackColor = InputBackColor;
 
-			// datetimepicker‚ÌValueƒvƒƒpƒeƒB‚©‚çDateTimeŒ^‚Ì’l‚ğæ“¾
+			// datetimepickerã®Valueãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‹ã‚‰DateTimeå‹ã®å€¤ã‚’å–å¾—
 			DateTime date = sellTimePicker.Value;
-			// ToStringƒƒ\ƒbƒh‚Å"yyyy"Œ`®‚Ì•¶š—ñ‚É•ÏŠ·
+			// ToStringãƒ¡ã‚½ãƒƒãƒ‰ã§"yyyy"å½¢å¼ã®æ–‡å­—åˆ—ã«å¤‰æ›
 			string year = date.ToString("yyyy");
-			// textbox‚Éyear‚ğ‘ã“ü
+			// textboxã«yearã‚’ä»£å…¥
 			yearText.Text = year;
-			yearText.BackColor = SystemColors.Window;
+			yearText.BackColor = InputBackColor;
 
 			genreText.Text = genreRadio.Text;
-			genreText.BackColor = SystemColors.Window;
+			genreText.BackColor = InputBackColor;
 
 			albumText.Text = productText.Text;
-			albumText.BackColor = SystemColors.Window;
+			albumText.BackColor = InputBackColor;
 
 			albumArtistText.Text = circleText.Text;
-			albumArtistText.BackColor = SystemColors.Window;
+			albumArtistText.BackColor = InputBackColor;
 
 			if (!keepOriginCheck.Checked)
 			{
@@ -83,6 +97,11 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// mp3ãƒ•ã‚¡ã‚¤ãƒ«åŠã³ãƒ•ã‚©ãƒ«ãƒ€ã‚’æ›´æ–°ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private async void writeButton_Click(object sender, EventArgs e)
 		{
 			logText.Clear();
@@ -90,35 +109,35 @@ namespace DLsiteMP3TagEditor
 
 			if (mp3ListBox.SelectedItems.Count == 0 && !editFolderNameOnlyCheck.Checked)
 			{
-				setLogMessage("XV‘ÎÛ‚Ìƒgƒ‰ƒbƒN‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", MessageType.Error);
-				MessageBox.Show("XV‘ÎÛ‚Ìƒgƒ‰ƒbƒN‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				setLogMessage("æ›´æ–°å¯¾è±¡ã®ãƒˆãƒ©ãƒƒã‚¯ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", MessageType.Error);
+				MessageBox.Show("æ›´æ–°å¯¾è±¡ã®ãƒˆãƒ©ãƒƒã‚¯ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
-			// ƒtƒHƒ‹ƒ_–¼XVˆ—‚Ì‚İ‚Ìê‡‚Í‚»‚ê‚¾‚¯s‚¤
+			// ãƒ•ã‚©ãƒ«ãƒ€åæ›´æ–°å‡¦ç†ã®ã¿ã®å ´åˆã¯ãã‚Œã ã‘è¡Œã†
 			if (editFolderNameOnlyCheck.Checked)
 			{
-				// ƒtƒHƒ‹ƒ_–¼•ÏX
+				// ãƒ•ã‚©ãƒ«ãƒ€åå¤‰æ›´
 				if (editFolderNameCheck.Checked)
 				{
 					UpdateFolderName(false);
 				}
 
-				// MP3 ƒtƒ@ƒCƒ‹‚ÌÄ“Ç‚İ‚İ
+				// MP3 ãƒ•ã‚¡ã‚¤ãƒ«ã®å†èª­ã¿è¾¼ã¿
 				if (directoryText.Text.Length > 0)
 				{
 					applyMP3FilesList(directoryText.Text);
 				}
 				AllMP3TracksSelect();
 
-				// ƒ^ƒOî•ñ‚ğ•\¦
+				// ã‚¿ã‚°æƒ…å ±ã‚’è¡¨ç¤º
 				GetListBoxSelectedInfo();
 				return;
 			}
 
 			if (albumText.Text.Length == 0)
 			{
-				DialogResult dr = MessageBox.Show("ƒAƒ‹ƒoƒ€î•ñ‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB\n‘±s‚µ‚Ü‚·‚©H", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+				DialogResult dr = MessageBox.Show("ã‚¢ãƒ«ãƒãƒ æƒ…å ±ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚\nç¶šè¡Œã—ã¾ã™ã‹ï¼Ÿ", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 				if (dr == DialogResult.No)
 				{
 					return;
@@ -126,7 +145,7 @@ namespace DLsiteMP3TagEditor
 			}
 			if (artistText.Text.Length == 0)
 			{
-				DialogResult dr = MessageBox.Show("ƒA[ƒeƒBƒXƒgî•ñ‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB\n‘±s‚µ‚Ü‚·‚©H", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+				DialogResult dr = MessageBox.Show("ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆæƒ…å ±ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚\nç¶šè¡Œã—ã¾ã™ã‹ï¼Ÿ", AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 				if (dr == DialogResult.No)
 				{
 					return;
@@ -136,88 +155,90 @@ namespace DLsiteMP3TagEditor
 			if (editFolderNameCheck.Checked)
 			{
 				newFolderPath = directoryText.Text.Trim();
-				// ƒx[ƒXƒpƒXƒ`ƒFƒbƒN
+				// ãƒ™ãƒ¼ã‚¹ãƒ‘ã‚¹ãƒã‚§ãƒƒã‚¯
 				if (Directory.Exists(newFolderPath))
 				{
-					// VƒpƒX‚Ìì¬
+					// æ–°ãƒ‘ã‚¹ã®ä½œæˆ
 					newFolderPath = UpdateFolderName();
 					if (Directory.Exists(newFolderPath))
 					{
-						setLogMessage($"•ÏXæ‚ÌƒtƒHƒ‹ƒ_–¼‚ªŠù‚É‘¶İ‚µ‚Ü‚·I - {newFolderPath}", MessageType.Error);
-						MessageBox.Show($"•ÏXæ‚ÌƒtƒHƒ‹ƒ_–¼‚ªŠù‚É‘¶İ‚µ‚Ü‚·I\n{newFolderPath}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						setLogMessage($"å¤‰æ›´å…ˆã®ãƒ•ã‚©ãƒ«ãƒ€åãŒæ—¢ã«å­˜åœ¨ã—ã¾ã™ï¼ - {newFolderPath}", MessageType.Error);
+						MessageBox.Show($"å¤‰æ›´å…ˆã®ãƒ•ã‚©ãƒ«ãƒ€åãŒæ—¢ã«å­˜åœ¨ã—ã¾ã™ï¼\n{newFolderPath}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 						return;
 					}
 				}
 				else
 				{
-					setLogMessage($"w’è‚µ‚½ƒpƒX‚ÍƒtƒHƒ‹ƒ_‚Å‚Í‚È‚¢‚©A‘¶İ‚µ‚Ü‚¹‚ñB - {newFolderPath}", MessageType.Error);
-					MessageBox.Show($"w’è‚µ‚½ƒpƒX‚ÍƒtƒHƒ‹ƒ_‚Å‚Í‚È‚¢‚©A‘¶İ‚µ‚Ü‚¹‚ñB\n{newFolderPath}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					setLogMessage($"æŒ‡å®šã—ãŸãƒ‘ã‚¹ã¯ãƒ•ã‚©ãƒ«ãƒ€ã§ã¯ãªã„ã‹ã€å­˜åœ¨ã—ã¾ã›ã‚“ã€‚ - {newFolderPath}", MessageType.Error);
+					MessageBox.Show($"æŒ‡å®šã—ãŸãƒ‘ã‚¹ã¯ãƒ•ã‚©ãƒ«ãƒ€ã§ã¯ãªã„ã‹ã€å­˜åœ¨ã—ã¾ã›ã‚“ã€‚\n{newFolderPath}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
 			}
 
+			string writeButtonText = writeButton.Text;
 			try
 			{
-				string writeButtonText = writeButton.Text;
 				updating = true;
 				writeButton.Enabled = false;
 
-				// ƒoƒbƒNƒAƒbƒv‚ğæ‚é
+				// ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’å–ã‚‹
 				await BackupFilesAsync(mp3PathListBox.SelectedItems);
 
-				// mp3PathListBox.SelectedItems ‚ğ IEnumerable<object> ‚É•ÏŠ·
+				// mp3PathListBox.SelectedItems ã‚’ IEnumerable<object> ã«å¤‰æ›
 				IEnumerable<object> selectedItems = mp3PathListBox.SelectedItems.Cast<object>();
 
-				// ƒ^ƒOXVÀs
+				// ã‚¿ã‚°æ›´æ–°å®Ÿè¡Œ
 				UpdateTagInformation(selectedItems);
 
-				// ƒ^ƒOî•ñ‚ÌXV‚ª³í‚ÉŠ®—¹‚µ‚½ê‡AƒoƒbƒNƒAƒbƒv‚ğíœ
+				// ã‚¿ã‚°æƒ…å ±ã®æ›´æ–°ãŒæ­£å¸¸ã«å®Œäº†ã—ãŸå ´åˆã€ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’å‰Šé™¤
 				await DeteleBackupFiles(mp3PathListBox.SelectedItems);
 
-				// ƒtƒHƒ‹ƒ_–¼•ÏX
+				// ãƒ•ã‚©ãƒ«ãƒ€åå¤‰æ›´
 				if (editFolderNameCheck.Checked)
 				{
 					UpdateFolderName(false);
 				}
 
-				// ƒ^ƒO‚Ì‘‚«‚İ‚ªŠ®—¹‚µ‚½‚±‚Æ‚ğ’Ê’m
-				MessageBox.Show("ƒ^ƒO‚ÌXV‚ªŠ®—¹‚µ‚Ü‚µ‚½B", AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-				writeButton.Text = writeButtonText;
-				setLogMessage("ƒ^ƒOî•ñ‚ÌXV‚ªŠ®—¹‚µ‚Ü‚µ‚½B", MessageType.Info);
+				// ã‚¿ã‚°ã®æ›¸ãè¾¼ã¿ãŒå®Œäº†ã—ãŸã“ã¨ã‚’é€šçŸ¥
+				MessageBox.Show("ã‚¿ã‚°ã®æ›´æ–°ãŒå®Œäº†ã—ã¾ã—ãŸã€‚", AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				setLogMessage("ã‚¿ã‚°æƒ…å ±ã®æ›´æ–°ãŒå®Œäº†ã—ã¾ã—ãŸã€‚", MessageType.Info);
 
-				// MP3 ƒtƒ@ƒCƒ‹‚ÌÄ“Ç‚İ‚İ
+				// MP3 ãƒ•ã‚¡ã‚¤ãƒ«ã®å†èª­ã¿è¾¼ã¿
 				if (directoryText.Text.Length > 0)
 				{
 					applyMP3FilesList(directoryText.Text);
 				}
 				AllMP3TracksSelect();
 
-				// ƒ^ƒOî•ñ‚ğ•\¦
+				// ã‚¿ã‚°æƒ…å ±ã‚’è¡¨ç¤º
 				GetListBoxSelectedInfo();
 
 				updating = false;
 			}
 			catch (Exception ex)
 			{
-				// ƒGƒ‰[‚ª”­¶‚µ‚½ê‡A‘S‚Ä‚ÌXVˆ—‚ğ’†’f‚µA‘‚«‚İ‘O‚Ìó‘Ô‚É–ß‚·
+				// ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸå ´åˆã€å…¨ã¦ã®æ›´æ–°å‡¦ç†ã‚’ä¸­æ–­ã—ã€æ›¸ãè¾¼ã¿å‰ã®çŠ¶æ…‹ã«æˆ»ã™
 				setLogMessage(ex.Message, MessageType.Error);
-				MessageBox.Show("ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½BXVˆ—‚ª’†’f‚³‚ê‚Ü‚µ‚½B", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚æ›´æ–°å‡¦ç†ãŒä¸­æ–­ã•ã‚Œã¾ã—ãŸã€‚", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-				// ƒoƒbƒNƒAƒbƒv‚©‚ç•œŒ³
+				// ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‹ã‚‰å¾©å…ƒ
 				await RestoreFilesFromBackupAsync(mp3PathListBox.SelectedItems);
 
 				updating = false;
 			}
 			finally
 			{
+				// ä¾‹å¤–ãƒ‘ã‚¹ã§ã‚‚ãƒœã‚¿ãƒ³è¡¨è¨˜ã¨é€²æ—è¡¨ç¤ºã‚’ç¢ºå®Ÿã«æˆ»ã™
+				writeButton.Text = writeButtonText;
 				writeButton.Enabled = true;
+				ResetProgress();
 			}
 		}
 
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚ÌƒoƒbƒNƒAƒbƒv‚ğì¬‚µ‚Ü‚·
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’ä½œæˆã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="files"></param>
+		/// <param name="files">å…ƒãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹</param>
 		/// <returns></returns>
 		private async Task BackupFilesAsync(System.Windows.Forms.ListBox.SelectedObjectCollection files)
 		{
@@ -230,9 +251,9 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚ÌƒoƒbƒNƒAƒbƒv‚ğíœ‚µ‚Ü‚·
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’å‰Šé™¤ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="files"></param>
+		/// <param name="files">å…ƒãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹</param>
 		/// <returns></returns>
 		private async Task DeteleBackupFiles(System.Windows.Forms.ListBox.SelectedObjectCollection files)
 		{
@@ -246,15 +267,15 @@ namespace DLsiteMP3TagEditor
 				}
 				else
 				{
-					setLogMessage($"ƒoƒbƒNƒAƒbƒvƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚Ü‚¹‚ñF{backupPath}", MessageType.Error);
+					setLogMessage($"ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã¾ã›ã‚“ï¼š{backupPath}", MessageType.Error);
 				}
 			}
 		}
 
 		/// <summary>
-		/// ƒoƒbƒNƒAƒbƒvƒtƒ@ƒCƒ‹‚ğŒ³‚É•œŒ³‚µ‚Ü‚·
+		/// ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å…ƒã«å¾©å…ƒã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="files"></param>
+		/// <param name="files">å…ƒãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹</param>
 		/// <returns></returns>
 		private async Task RestoreFilesFromBackupAsync(System.Windows.Forms.ListBox.SelectedObjectCollection files)
 		{
@@ -270,14 +291,14 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// ƒ^ƒO‚ÌXV
+		/// ã‚¿ã‚°ã®æ›´æ–°
 		/// </summary>
 		/// <param name="selectedItems"></param>
 		private async void UpdateTagInformation(IEnumerable<object> selectedItems)
 		{
 			if (selectedItems == null || !selectedItems.Any())
 			{
-				MessageBox.Show("ƒgƒ‰ƒbƒN‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñI", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("ãƒˆãƒ©ãƒƒã‚¯ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã›ã‚“ï¼", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
@@ -290,8 +311,8 @@ namespace DLsiteMP3TagEditor
 				{
 					var mp3 = TagLib.File.Create(filePath);
 
-					// ƒ^ƒCƒgƒ‹‚ÌXV
-					if (totalFiles == 1 || (totalFiles > 1 && !string.Equals(titleText.Text, "<•¡”‚Ì’l>")))
+					// ã‚¿ã‚¤ãƒˆãƒ«ã®æ›´æ–°
+					if (totalFiles == 1 || (totalFiles > 1 && !string.Equals(titleText.Text, "<è¤‡æ•°ã®å€¤>")))
 					{
 						if (mp3.Tag.Title != titleText.Text)
 						{
@@ -299,7 +320,7 @@ namespace DLsiteMP3TagEditor
 						}
 					}
 
-					// ‘¼‚Ìƒ^ƒOî•ñ‚ÌXV
+					// ä»–ã®ã‚¿ã‚°æƒ…å ±ã®æ›´æ–°
 					mp3.Tag.Album = albumText.Text;
 					mp3.Tag.AlbumArtists = new string[] { albumArtistText.Text };
 					mp3.Tag.Performers = new string[] { artistText.Text };
@@ -308,7 +329,7 @@ namespace DLsiteMP3TagEditor
 
 					if (!keepOriginCheck.Checked)
 					{
-						// ‰æ‘œ‚ÌXV
+						// ç”»åƒã®æ›´æ–°
 						if (mp3Picture.BackgroundImage != null)
 						{
 							var picture = new Picture();
@@ -331,20 +352,26 @@ namespace DLsiteMP3TagEditor
 				}
 				catch (Exception ex)
 				{
-					// ƒGƒ‰[‚ª”­¶‚µ‚½ê‡A’†’f‚µAƒGƒ‰[“à—e‚ğ•\¦
+					// ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸå ´åˆã€ä¸­æ–­ã—ã€ã‚¨ãƒ©ãƒ¼å†…å®¹ã‚’è¡¨ç¤º
 					RevertChanges(selectedItems);
 					setLogMessage($"{ex.Message} - {Path.GetFileName(filePath)}", MessageType.Error);
-					MessageBox.Show($"ƒ^ƒO‚ÌXV’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½F {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show($"ã‚¿ã‚°ã®æ›´æ–°ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸï¼š {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
 			}
 		}
 
+		/// <summary>
+		/// ãƒ•ã‚©ãƒ«ãƒ€åå¤‰æ›´
+		/// </summary>
+		/// <param name="genOnly">ãƒ•ã‚©ãƒ«ãƒ€åæ”¹åã‚·ãƒ¥ãƒŸãƒ¬ãƒ¼ãƒˆ</param>
+		/// <param name="baseFolderPath">ç§»å‹•å…ƒãƒ•ã‚©ãƒ«ãƒ€ãƒ‘ã‚¹</param>
+		/// <returns></returns>
 		private string UpdateFolderName(bool genOnly = true, string baseFolderPath = "")
 		{
-			string resultPath = string.Empty;   // Š®¬ƒtƒ‹ƒpƒX
-			string resultName = string.Empty;   // Š®¬ƒtƒHƒ‹ƒ_–¼
-			string baseFolderName = baseFolderPath.Length > 0 ? baseFolderPath : directoryText.Text.Trim();  // ƒx[ƒXƒtƒ‹ƒpƒX
+			string resultPath = string.Empty;   // å®Œæˆãƒ•ãƒ«ãƒ‘ã‚¹
+			string resultName = string.Empty;   // å®Œæˆãƒ•ã‚©ãƒ«ãƒ€å
+			string baseFolderName = baseFolderPath.Length > 0 ? baseFolderPath : directoryText.Text.Trim();  // ãƒ™ãƒ¼ã‚¹ãƒ•ãƒ«ãƒ‘ã‚¹
 			if (baseFolderName.Length == 0)
 			{
 				return resultName;
@@ -352,7 +379,7 @@ namespace DLsiteMP3TagEditor
 			string replaceFolderName = folderNameText.Text.Trim();
 			try
 			{
-				// ’l€”õ
+				// å€¤æº–å‚™
 				var checkedItems = cvCheckList.CheckedItems;
 				string[] items = new string[checkedItems.Count];
 				for (int i = 0; i < checkedItems.Count; i++)
@@ -361,7 +388,7 @@ namespace DLsiteMP3TagEditor
 				}
 				string cvList = string.Join(",", items);
 
-				// ƒtƒHƒ‹ƒ_–¼•ÏX
+				// ãƒ•ã‚©ãƒ«ãƒ€åå¤‰æ›´
 				resultName = replaceFolderName.Replace("{ProductID}", productIDText.Text.Trim())
 				.Replace("{ProductDate}", sellTimePicker.Value.ToString("yyMMdd"))
 				.Replace("{ProductName}", albumText.Text.Trim())
@@ -374,22 +401,41 @@ namespace DLsiteMP3TagEditor
 
 				if (!genOnly)
 				{
-					Directory.Move(baseFolderName, resultPath);
-					directoryText.Text = resultPath;
+					// ãƒ•ã‚©ãƒ«ãƒ€åé‡è¤‡ãƒã‚§ãƒƒã‚¯
+					if (Directory.Exists(resultPath))
+					{
+						setLogMessage($"æ—¢ã«åŒã˜åå‰ã®ãƒ•ã‚©ãƒ«ãƒ€ãŒå­˜åœ¨ã—ã¾ã™ï¼", MessageType.Warn);
+					}
+					else
+					{
+						if (Directory.Exists(baseFolderName))
+						{
+							Directory.Move(baseFolderName, resultPath);
+							directoryText.Text = resultPath;
+						}
+						else
+						{
+							setLogMessage($"ç§»å‹•å…ƒãƒ•ã‚©ãƒ«ãƒ€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ï¼", MessageType.Error);
+						}
+					}
 				}
 			}
 			catch (Exception ex)
 			{
 				setLogMessage($"{ex.Message}", MessageType.Error);
-				MessageBox.Show($"ƒtƒHƒ‹ƒ_–¼‚ÌXV’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½F {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"ãƒ•ã‚©ãƒ«ãƒ€åã®æ›´æ–°ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸï¼š {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return string.Empty;
 			}
 			return resultName;
 		}
 
+		/// <summary>
+		/// ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å¾©å…ƒã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="selectedItems"></param>
 		private void RevertChanges(IEnumerable<object> selectedItems)
 		{
-			// ƒGƒ‰[‚ª”­¶‚µ‚½ê‡A•ÏX‚ğŒ³‚É–ß‚·
+			// ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸå ´åˆã€å¤‰æ›´ã‚’å…ƒã«æˆ»ã™
 			foreach (string filePath in selectedItems)
 			{
 				try
@@ -401,7 +447,7 @@ namespace DLsiteMP3TagEditor
 				}
 				catch (Exception)
 				{
-					// ƒGƒ‰[‚ª”­¶‚µ‚Ä‚à–³‹
+					// ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¦ã‚‚ç„¡è¦–
 				}
 			}
 		}
@@ -409,13 +455,33 @@ namespace DLsiteMP3TagEditor
 		private void UpdateProgress(int completedFiles, int totalFiles)
 		{
 			int progressPercentage = (int)((double)completedFiles / totalFiles * 100);
-			writeButton.Text = string.Format("‘’†({0}%)", progressPercentage);
+			writeButton.Text = string.Format("æ›¸è¾¼ä¸­({0}%)", progressPercentage);
+
+			// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã«ã‚‚é€²æ—ã‚’è¡¨ç¤ºã™ã‚‹
+			progressBar.Visible = true;
+			progressBar.Value = Math.Min(progressPercentage, 100);
+			statusLabel.Text = $"æ›¸ãè¾¼ã¿ä¸­... {completedFiles}/{totalFiles}";
+			statusStrip1.Refresh();
 		}
 
+		/// <summary>
+		/// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã®é€²æ—è¡¨ç¤ºã‚’ãƒªã‚»ãƒƒãƒˆã—ã¾ã™ã€‚
+		/// </summary>
+		private void ResetProgress()
+		{
+			progressBar.Visible = false;
+			progressBar.Value = 0;
+			statusLabel.Text = "æº–å‚™å®Œäº†";
+		}
 
+		/// <summary>
+		/// ãƒ•ã‚©ãƒ«ãƒ€ã‚’å‚ç…§ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void directorySearchButton_Click(object sender, EventArgs e)
 		{
-			folderBrowserDialog1.Description = "ƒAƒbƒvƒ[ƒh‚·‚éƒtƒHƒ‹ƒ_‚ğ‘I‘ğ";
+			folderBrowserDialog1.Description = "ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã™ã‚‹ãƒ•ã‚©ãƒ«ãƒ€ã‚’é¸æŠ";
 			DialogResult dr = folderBrowserDialog1.ShowDialog();
 			if (dr == DialogResult.Cancel)
 			{
@@ -427,13 +493,13 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// ‚·‚×‚Ä‚Ìƒgƒ‰ƒbƒN‚ğ‘I‘ğ‚µ‚Ü‚·
+		/// ã™ã¹ã¦ã®ãƒˆãƒ©ãƒƒã‚¯ã‚’é¸æŠã—ã¾ã™
 		/// </summary>
 		private void AllMP3TracksSelect()
 		{
 			if (mp3ListBox.Items.Count != 0)
 			{
-				// listbox‚Ì‘S‚Ä‚ÌƒAƒCƒeƒ€‚ğ‘I‘ğ
+				// listboxã®å…¨ã¦ã®ã‚¢ã‚¤ãƒ†ãƒ ã‚’é¸æŠ
 				for (int i = 0; i < mp3ListBox.Items.Count; i++)
 				{
 					try
@@ -442,13 +508,18 @@ namespace DLsiteMP3TagEditor
 					}
 					catch (Exception)
 					{
-						// ƒGƒ‰[‚ª”­¶‚µ‚Ä‚à–³‹
+						// ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¦ã‚‚ç„¡è¦–
 					}
 				}
 			}
 			return;
 		}
 
+		/// <summary>
+		/// mp3ãƒ•ã‚¡ã‚¤ãƒ«ãƒªã‚¹ãƒˆå¤‰æ›´æ™‚ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void mp3ListBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (!mp3InfoGetFlg)
@@ -460,6 +531,11 @@ namespace DLsiteMP3TagEditor
 			GetListBoxSelectedInfo();
 		}
 
+		/// <summary>
+		/// mp3ãƒ‘ã‚¹ãƒªã‚¹ãƒˆå¤‰æ›´æ™‚ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void mp3PathListBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (!mp3InfoGetFlg)
@@ -472,45 +548,46 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// <paramref name="path"/>‚©‚çmp3ƒtƒ@ƒCƒ‹‚ğŒŸõ‚µAƒgƒ‰ƒbƒNƒŠƒXƒg‚É”½‰f‚µ‚Ü‚·B
+		/// <paramref name="path"/>ã‹ã‚‰mp3ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¤œç´¢ã—ã€ãƒˆãƒ©ãƒƒã‚¯ãƒªã‚¹ãƒˆã«åæ˜ ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="path">ŒŸõ‘ÎÛ‚ÌƒfƒBƒŒƒNƒgƒŠ</param>
-		/// <param name="listClear">true‚Ìê‡AƒŠƒXƒg‚Ì‰Šú‰»‚ğs‚¢‚Ü‚·</param>
+		/// <param name="path">æ¤œç´¢å¯¾è±¡ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª</param>
+		/// <param name="listClear">trueã®å ´åˆã€ãƒªã‚¹ãƒˆã®åˆæœŸåŒ–ã‚’è¡Œã„ã¾ã™</param>
 		private void applyMP3FilesList(string path, bool listClear = true)
 		{
+			int maxWidth = 0;
 			try
 			{
 				if (listClear)
 				{
-					// ƒŠƒXƒg‚ğ‰Šú‰»‚·‚é
+					// ãƒªã‚¹ãƒˆã‚’åˆæœŸåŒ–ã™ã‚‹
 					mp3ListBox.Items.Clear();
 					mp3PathListBox.Items.Clear();
 				}
 
-				// ƒtƒHƒ‹ƒ_“à‚Ì‚·‚×‚Ä‚Ìmp3ƒtƒ@ƒCƒ‹‚ğæ“¾
+				// ãƒ•ã‚©ãƒ«ãƒ€å†…ã®ã™ã¹ã¦ã®mp3ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å–å¾—
 				string[] files = System.IO.Directory.GetFiles(path, "*.mp3", SearchOption.AllDirectories);
-				// æ“¾‚µ‚½ƒtƒ@ƒCƒ‹‚ğƒ‹[ƒv
+				// å–å¾—ã—ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ«ãƒ¼ãƒ—
 				foreach (string file in files)
 				{
-					// mp3ListBox‚Éƒtƒ@ƒCƒ‹–¼‚¾‚¯‚ğ’Ç‰Á
+					// mp3ListBoxã«ãƒ•ã‚¡ã‚¤ãƒ«åã ã‘ã‚’è¿½åŠ 
 					mp3ListBox.Items.Add(Path.GetFileName(file));
-					// mp3PathListBox‚Éƒtƒ‹ƒpƒX‚ğ’Ç‰Á
+					// mp3PathListBoxã«ãƒ•ãƒ«ãƒ‘ã‚¹ã‚’è¿½åŠ 
 					mp3PathListBox.Items.Add(file);
 				}
 
-				// ŒŸõÀs
+				// æ¤œç´¢å®Ÿè¡Œ
 				if (getProductIDFromPathCheck.Checked && Directory.Exists(path))
 				{
-					// ³‹K•\Œ»‚Ìƒpƒ^[ƒ“
-					string pattern = @"(RJ|VJ)\d{6,8}";
+					// æ­£è¦è¡¨ç¾ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ï¼ˆDLsiteå½¢å¼ãŠã‚ˆã³FANZAåŒäººã®d_å½¢å¼ã€‚ã€Œsound_01ã€ç­‰ã¸ã®èª¤ãƒãƒƒãƒã¯ç›´å‰è‹±æ•°å­—ã®é™¤å¤–ã§é˜²ãï¼‰
+					string pattern = @"(RJ|VJ|BJ|rj|vj|bj)\d{6,8}|(?<![a-zA-Z0-9])d_\d+";
 
-					// ³‹K•\Œ»ƒIƒuƒWƒFƒNƒg‚Ìì¬
+					// æ­£è¦è¡¨ç¾ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä½œæˆ
 					Regex regex = new Regex(pattern);
 
-					// ƒtƒ@ƒCƒ‹ƒpƒX‚©‚ç“Á’è‚Ì•¶š‚ğ”²‚«o‚·
+					// ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ã‹ã‚‰ç‰¹å®šã®æ–‡å­—ã‚’æŠœãå‡ºã™
 					Match match = regex.Match(path);
 
-					// ”²‚«o‚µ‚½•¶š‚ª‚ ‚ê‚Î•\¦‚·‚é
+					// æŠœãå‡ºã—ãŸæ–‡å­—ãŒã‚ã‚Œã°è¡¨ç¤ºã™ã‚‹
 					if (match.Success)
 					{
 						searchText.Text = match.Value;
@@ -523,63 +600,117 @@ namespace DLsiteMP3TagEditor
 			}
 			catch (Exception ex)
 			{
-				setLogMessage($"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {ex.Message}", MessageType.Error);
-				MessageBox.Show($"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				setLogMessage($"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {ex.Message}", MessageType.Error);
+				MessageBox.Show($"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 
 			return;
 		}
 
+		/// <summary>
+		/// DLsiteã‚‚ã—ãã¯FANZAåŒäººã§ã‚¢ã‚¤ãƒ†ãƒ ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void searchButton_Click(object sender, EventArgs e)
 		{
 			logText.Clear();
-			string productId = searchText.Text.Trim();
+			string searchWord = searchText.Text.Trim();
 
 			try
 			{
-				// ”š‚Ì‚İ‚©”»’è‚·‚é
-				if (Regex.IsMatch(productId, @"^\d+$"))
+				// FANZAåŒäººï¼ˆd_123456å½¢å¼ã‚‚ã—ãã¯dmm.co.jpã®URLï¼‰ã‹åˆ¤å®šã™ã‚‹
+				if (Regex.IsMatch(searchWord, @"d_\d+", RegexOptions.IgnoreCase) || searchWord.Contains("dmm.co.jp"))
 				{
-					// ”š‚Ì‚İ‚Ìê‡ARJ‚ğ’Ç‰Á
-					productId = "RJ" + productId;
+					DLsiteItemClear();
+
+					// ãƒ‡ãƒ¼ã‚¿å–å¾—
+					FanzaInfo result = FanzaInfo.GetInfo(searchWord);
+
+					productIDText.Text = result.ProductId;
+					productText.Text = result.Title;
+					circleText.Text = result.Circle;
+					sellTimePicker.Value = result.SellDate;
+					foreach (string va in result.VoiceActor)
+					{
+						cvCheckList.Items.Add(va, true);
+					}
+					SetProductPicture(result.ImageUrl);
 				}
-				if (productId.Length < 8)
+				else
 				{
-					setLogMessage("URL‚à‚µ‚­‚ÍID‚ªˆê’èŒ…”‚ğ–‚½‚µ‚Ä‚¢‚Ü‚¹‚ñB", MessageType.Error);
-					MessageBox.Show("URL‚à‚µ‚­‚ÍID‚ª•s³‚Å‚·B\n\n—áF\nIDŒ`®FwRJ343328x\nURLŒ`®Fwhttps://www.dlsite.com/home/work/=/product_id/RJ343328.htmlx", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-					searchText.Focus();
-					return;
+					string productId = searchWord;
+					// æ•°å­—ã®ã¿ã‹åˆ¤å®šã™ã‚‹
+					if (Regex.IsMatch(productId, @"^\d+$"))
+					{
+						// æ•°å­—ã®ã¿ã®å ´åˆã€RJã‚’è¿½åŠ 
+						productId = "RJ" + productId;
+					}
+					if (productId.Length < 8)
+					{
+						setLogMessage("URLã‚‚ã—ãã¯IDãŒä¸€å®šæ¡æ•°ã‚’æº€ãŸã—ã¦ã„ã¾ã›ã‚“ã€‚", MessageType.Error);
+						MessageBox.Show("URLã‚‚ã—ãã¯IDãŒä¸æ­£ã§ã™ã€‚\n\nä¾‹ï¼š\nIDå½¢å¼ï¼šã€RJ343328ã€\nURLå½¢å¼ï¼šã€https://www.dlsite.com/home/work/=/product_id/RJ343328.htmlã€\nFANZAå½¢å¼ï¼šã€d_123456ã€", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						searchText.Focus();
+						return;
+					}
+
+					DLsiteItemClear();
+
+					// ãƒ‡ãƒ¼ã‚¿å–å¾—
+					DLsiteInfo result = DLsiteInfo.GetInfo(productId);
+
+					productIDText.Text = result.ProductId;
+					productText.Text = result.Title;
+					circleText.Text = result.Circle;
+					sellTimePicker.Value = result.SellDate;
+					foreach (string va in result.VoiceActor)
+					{
+						cvCheckList.Items.Add(va, true);
+					}
+					SetProductPicture(result.ImageUrl);
 				}
-
-				DLsiteItemClear();
-
-				// ƒf[ƒ^æ“¾
-				DLsiteInfo result = DLsiteInfo.GetInfo(productId);
-
-				productIDText.Text = result.ProductId;
-				productText.Text = result.Title;
-				circleText.Text = result.Circle;
-				sellTimePicker.Value = result.SellDate;
-				foreach (string va in result.VoiceActor)
-				{
-					cvCheckList.Items.Add(va, true);
-				}
-				WebClient wc = new WebClient();
-				byte[] bytes = wc.DownloadData(result.ImageUrl);
-				MemoryStream ms = new MemoryStream(bytes);
-				Image img = Image.FromStream(ms);
-				dlsitePicture.BackgroundImage = img;
 			}
 			catch (Exception ex)
 			{
 				setLogMessage(ex.Message, MessageType.Error);
-				MessageBox.Show($"—\Šú‚¹‚ÊƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B\n\n{ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"äºˆæœŸã›ã¬ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚\n\n{ex.Message}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 
 			searchText.Clear();
 			return;
 		}
 
+		/// <summary>
+		/// ä½œå“ç”»åƒã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã¦è¡¨ç¤ºã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="imageUrl">ä½œå“ç”»åƒã®URL</param>
+		private void SetProductPicture(string imageUrl)
+		{
+			if (string.IsNullOrEmpty(imageUrl))
+			{
+				return;
+			}
+			try
+			{
+				WebClient wc = new WebClient();
+				wc.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+				byte[] bytes = wc.DownloadData(imageUrl);
+				MemoryStream ms = new MemoryStream(bytes);
+				Image img = Image.FromStream(ms);
+				dlsitePicture.BackgroundImage = img;
+			}
+			catch (Exception ex)
+			{
+				// ç”»åƒã®å–å¾—ã«å¤±æ•—ã—ã¦ã‚‚ãƒ†ã‚­ã‚¹ãƒˆæƒ…å ±ã¯åæ˜ æ¸ˆã¿ã®ãŸã‚ã€å‡¦ç†ã¯ç¶™ç¶šã™ã‚‹
+				setLogMessage($"ä½œå“ç”»åƒã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸ: {ex.Message}", MessageType.Warn);
+			}
+		}
+
+		/// <summary>
+		/// ãƒ­ã‚°ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¿½åŠ ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="msgType"></param>
 		private void setLogMessage(string message, MessageType msgType)
 		{
 			StringBuilder sb = new StringBuilder();
@@ -605,16 +736,16 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// ƒŠƒXƒg‘I‘ğ’l“¯Šú
+		/// ãƒªã‚¹ãƒˆé¸æŠå€¤åŒæœŸ
 		/// </summary>
 		/// <param name="listBox1"></param>
 		/// <param name="listBox2"></param>
 		private void SyncListBoxes(ListBox listBox1, ListBox listBox2)
 		{
-			// listbox1‚Ì‘I‘ğ€–Ú‚ğæ“¾
+			// listbox1ã®é¸æŠé …ç›®ã‚’å–å¾—
 			var selectedItems1 = listBox1.SelectedItems;
 
-			// listbox2‚ÌSelectedIndexChangedƒCƒxƒ“ƒg‚ğˆê“I‚É–³Œø‰»
+			// listbox2ã®SelectedIndexChangedã‚¤ãƒ™ãƒ³ãƒˆã‚’ä¸€æ™‚çš„ã«ç„¡åŠ¹åŒ–
 			if (listBox1 == mp3ListBox)
 			{
 				listBox2.SelectedIndexChanged -= mp3PathListBox_SelectedIndexChanged;
@@ -624,10 +755,10 @@ namespace DLsiteMP3TagEditor
 				listBox2.SelectedIndexChanged -= mp3ListBox_SelectedIndexChanged;
 			}
 
-			// listbox2‚Ì‘I‘ğ€–Ú‚ğƒNƒŠƒA
+			// listbox2ã®é¸æŠé …ç›®ã‚’ã‚¯ãƒªã‚¢
 			listBox2.ClearSelected();
 
-			// listbox1‚Ælistbox2‚ÌƒCƒ“ƒfƒbƒNƒX‚ªˆê’v‚·‚é€–Ú‚ğ‘I‘ğ
+			// listbox1ã¨listbox2ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒä¸€è‡´ã™ã‚‹é …ç›®ã‚’é¸æŠ
 			foreach (var item in selectedItems1)
 			{
 				int index = listBox1.Items.IndexOf(item);
@@ -637,7 +768,7 @@ namespace DLsiteMP3TagEditor
 				}
 			}
 
-			// listbox2‚ÌSelectedIndexChangedƒCƒxƒ“ƒg‚ğ—LŒø‰»
+			// listbox2ã®SelectedIndexChangedã‚¤ãƒ™ãƒ³ãƒˆã‚’æœ‰åŠ¹åŒ–
 			if (listBox1 == mp3ListBox)
 			{
 				listBox2.SelectedIndexChanged += mp3PathListBox_SelectedIndexChanged;
@@ -648,13 +779,16 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// é¸æŠä¸­ã®ã‚¢ã‚¤ãƒ†ãƒ ã®æƒ…å ±ã‚’å–å¾—ã—ã¾ã™ã€‚
+		/// </summary>
 		private void GetListBoxSelectedInfo()
 		{
 			MP3ItemClear();
 			// logText.Clear();
 			if (mp3ListBox.SelectedItems.Count != 0)
 			{
-				// ‘I‘ğ‚³‚ê‚½ƒtƒ@ƒCƒ‹‚Ìƒ^ƒOî•ñ‚ğƒŠƒXƒg‚ÉŠi”[‚·‚é
+				// é¸æŠã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚¿ã‚°æƒ…å ±ã‚’ãƒªã‚¹ãƒˆã«æ ¼ç´ã™ã‚‹
 				List<string> titles = new List<string>();
 				List<string> artists = new List<string>();
 				List<uint> years = new List<uint>();
@@ -667,23 +801,23 @@ namespace DLsiteMP3TagEditor
 					string filePath = obj.ToString();
 					if (System.IO.File.Exists(filePath))
 					{
-						// TagLib.FileƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬
+						// TagLib.Fileã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆ
 						TagLib.File mp3 = TagLib.File.Create(filePath);
-						// ƒ^ƒOî•ñ‚ğæ“¾
+						// ã‚¿ã‚°æƒ…å ±ã‚’å–å¾—
 						string title = mp3.Tag.Title;
-						string artist = string.Join(", ", mp3.Tag.Performers); // ”z—ñ‚ğ•¶š—ñ‚É˜AŒ‹
+						string artist = string.Join(", ", mp3.Tag.Performers); // é…åˆ—ã‚’æ–‡å­—åˆ—ã«é€£çµ
 						uint year = mp3.Tag.Year;
-						string genre = string.Join(", ", mp3.Tag.Genres); // ”z—ñ‚ğ•¶š—ñ‚É˜AŒ‹
+						string genre = string.Join(", ", mp3.Tag.Genres); // é…åˆ—ã‚’æ–‡å­—åˆ—ã«é€£çµ
 						string album = mp3.Tag.Album;
-						string albumArtist = string.Join(", ", mp3.Tag.AlbumArtists); // ”z—ñ‚ğ•¶š—ñ‚É˜AŒ‹
-																					  // ƒAƒ‹ƒoƒ€ƒA[ƒg‚ğæ“¾i‰æ‘œ‚Íbyte[]Œ^‚ÅŠi”[‚³‚ê‚Ä‚¢‚éj
+						string albumArtist = string.Join(", ", mp3.Tag.AlbumArtists); // é…åˆ—ã‚’æ–‡å­—åˆ—ã«é€£çµ
+																					  // ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒˆã‚’å–å¾—ï¼ˆç”»åƒã¯byte[]å‹ã§æ ¼ç´ã•ã‚Œã¦ã„ã‚‹ï¼‰
 						byte[] albumArt = null;
-						if (mp3.Tag.Pictures.Length > 0) // ‰æ‘œ‚ª‘¶İ‚·‚é‚©ƒ`ƒFƒbƒN
+						if (mp3.Tag.Pictures.Length > 0) // ç”»åƒãŒå­˜åœ¨ã™ã‚‹ã‹ãƒã‚§ãƒƒã‚¯
 						{
 							albumArt = mp3.Tag.Pictures[0].Data.Data;
 						}
 
-						// ƒŠƒXƒg‚É’Ç‰Á
+						// ãƒªã‚¹ãƒˆã«è¿½åŠ 
 						titles.Add(title);
 						artists.Add(artist);
 						years.Add(year);
@@ -695,77 +829,77 @@ namespace DLsiteMP3TagEditor
 					}
 					else
 					{
-						setLogMessage($"ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚Ü‚¹‚ñ: {Path.GetFileName(filePath)}", MessageType.Error);
-						MessageBox.Show($"ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚Ü‚¹‚ñ: {Path.GetFileName(filePath)}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-						// ƒGƒ‰[AƒŠƒXƒgÄ“Ç‚İ‚İ‚ğÀ{
+						setLogMessage($"ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã¾ã›ã‚“: {Path.GetFileName(filePath)}", MessageType.Error);
+						MessageBox.Show($"ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã¾ã›ã‚“: {Path.GetFileName(filePath)}", AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						// ã‚¨ãƒ©ãƒ¼æ™‚ã€ãƒªã‚¹ãƒˆå†èª­ã¿è¾¼ã¿ã‚’å®Ÿæ–½
 						applyMP3FilesList(folderBrowserDialog1.SelectedPath);
 						AllMP3TracksSelect();
 						return;
 					}
 				}
 
-				// Šeƒ^ƒOî•ñ‚ª‚·‚×‚Ä“¯‚¶‚©‚Ç‚¤‚©”»’è‚·‚é
-				bool sameTitle = true; // ‰Šú’l‚Ítrue‚Æ‚·‚é
-				for (int i = 1; i < titles.Count; i++) // 2”Ô–Ú‚Ì—v‘f‚©‚ç‡‚É”äŠr‚·‚é
+				// å„ã‚¿ã‚°æƒ…å ±ãŒã™ã¹ã¦åŒã˜ã‹ã©ã†ã‹åˆ¤å®šã™ã‚‹
+				bool sameTitle = true; // åˆæœŸå€¤ã¯trueã¨ã™ã‚‹
+				for (int i = 1; i < titles.Count; i++) // 2ç•ªç›®ã®è¦ç´ ã‹ã‚‰é †ã«æ¯”è¼ƒã™ã‚‹
 				{
-					if (titles[i] != titles[0]) // Å‰‚Ì—v‘f‚ÆˆÙ‚È‚éê‡
+					if (titles[i] != titles[0]) // æœ€åˆã®è¦ç´ ã¨ç•°ãªã‚‹å ´åˆ
 					{
 						sameTitle = false;
-						break; // ƒ‹[ƒv‚ğ”²‚¯‚é
+						break; // ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 					}
 				}
-				bool sameArtist = true; // ‰Šú’l‚Ítrue‚Æ‚·‚é
-				for (int i = 1; i < artists.Count; i++) // 2”Ô–Ú‚Ì—v‘f‚©‚ç‡‚É”äŠr‚·‚é
+				bool sameArtist = true; // åˆæœŸå€¤ã¯trueã¨ã™ã‚‹
+				for (int i = 1; i < artists.Count; i++) // 2ç•ªç›®ã®è¦ç´ ã‹ã‚‰é †ã«æ¯”è¼ƒã™ã‚‹
 				{
-					if (artists[i] != artists[0]) // Å‰‚Ì—v‘f‚ÆˆÙ‚È‚éê‡
+					if (artists[i] != artists[0]) // æœ€åˆã®è¦ç´ ã¨ç•°ãªã‚‹å ´åˆ
 					{
 						sameArtist = false;
-						break; // ƒ‹[ƒv‚ğ”²‚¯‚é
+						break; // ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 					}
 				}
-				bool sameYear = true; // ‰Šú’l‚Ítrue‚Æ‚·‚é
-				for (int i = 1; i < years.Count; i++) // 2”Ô–Ú‚Ì—v‘f‚©‚ç‡‚É”äŠr‚·‚é
+				bool sameYear = true; // åˆæœŸå€¤ã¯trueã¨ã™ã‚‹
+				for (int i = 1; i < years.Count; i++) // 2ç•ªç›®ã®è¦ç´ ã‹ã‚‰é †ã«æ¯”è¼ƒã™ã‚‹
 				{
-					if (years[i] != years[0]) // Å‰‚Ì—v‘f‚ÆˆÙ‚È‚éê‡
+					if (years[i] != years[0]) // æœ€åˆã®è¦ç´ ã¨ç•°ãªã‚‹å ´åˆ
 					{
 						sameYear = false;
-						break; // ƒ‹[ƒv‚ğ”²‚¯‚é
+						break; // ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 					}
 				}
-				bool sameGenre = true; // ‰Šú’l‚Ítrue‚Æ‚·‚é
-				for (int i = 1; i < genres.Count; i++) // 2”Ô–Ú‚Ì—v‘f‚©‚ç‡‚É”äŠr‚·‚é
+				bool sameGenre = true; // åˆæœŸå€¤ã¯trueã¨ã™ã‚‹
+				for (int i = 1; i < genres.Count; i++) // 2ç•ªç›®ã®è¦ç´ ã‹ã‚‰é †ã«æ¯”è¼ƒã™ã‚‹
 				{
-					if (genres[i] != genres[0]) // Å‰‚Ì—v‘f‚ÆˆÙ‚È‚éê‡
+					if (genres[i] != genres[0]) // æœ€åˆã®è¦ç´ ã¨ç•°ãªã‚‹å ´åˆ
 					{
-						sameGenre = false; // false‚É‚·‚é
-						break; // ƒ‹[ƒv‚ğ”²‚¯‚é
+						sameGenre = false; // falseã«ã™ã‚‹
+						break; // ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 					}
 				}
-				bool sameAlbum = true; // ‰Šú’l‚Ítrue‚Æ‚·‚é
-				for (int i = 1; i < albums.Count; i++) // 2”Ô–Ú‚Ì—v‘f‚©‚ç‡‚É”äŠr‚·‚é
+				bool sameAlbum = true; // åˆæœŸå€¤ã¯trueã¨ã™ã‚‹
+				for (int i = 1; i < albums.Count; i++) // 2ç•ªç›®ã®è¦ç´ ã‹ã‚‰é †ã«æ¯”è¼ƒã™ã‚‹
 				{
-					if (albums[i] != albums[0]) // Å‰‚Ì—v‘f‚ÆˆÙ‚È‚éê‡
+					if (albums[i] != albums[0]) // æœ€åˆã®è¦ç´ ã¨ç•°ãªã‚‹å ´åˆ
 					{
 						sameAlbum = false;
-						break; // ƒ‹[ƒv‚ğ”²‚¯‚é
+						break; // ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 					}
 				}
-				bool sameAlbumArtist = true; // ‰Šú’l‚Ítrue‚Æ‚·‚é
-				for (int i = 1; i < albumArtists.Count; i++) // 2”Ô–Ú‚Ì—v‘f‚©‚ç‡‚É”äŠr‚·‚é
+				bool sameAlbumArtist = true; // åˆæœŸå€¤ã¯trueã¨ã™ã‚‹
+				for (int i = 1; i < albumArtists.Count; i++) // 2ç•ªç›®ã®è¦ç´ ã‹ã‚‰é †ã«æ¯”è¼ƒã™ã‚‹
 				{
-					if (albumArtists[i] != albumArtists[0]) // Å‰‚Ì—v‘f‚ÆˆÙ‚È‚éê‡
+					if (albumArtists[i] != albumArtists[0]) // æœ€åˆã®è¦ç´ ã¨ç•°ãªã‚‹å ´åˆ
 					{
 						sameAlbumArtist = false;
-						break; // ƒ‹[ƒv‚ğ”²‚¯‚é
+						break; // ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 					}
 				}
-				// ƒAƒ‹ƒoƒ€ƒA[ƒg‚ª‚·‚×‚Ä“¯‚¶‚©‚Ç‚¤‚©”»’è‚·‚é
+				// ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒˆãŒã™ã¹ã¦åŒã˜ã‹ã©ã†ã‹åˆ¤å®šã™ã‚‹
 				bool sameAlbumArt = true;
 				byte[] firstAlbumArtHash = ComputeSHA256(albumArts[0]);
 				for (int i = 1; i < albumArts.Count; i++)
 				{
 					byte[] currentAlbumArtHash = ComputeSHA256(albumArts[i]);
-					// null‚Å‚È‚¢‚±‚Æ‚ğŠm”F‚·‚é
+					// nullã§ãªã„ã“ã¨ã‚’ç¢ºèªã™ã‚‹
 					if (firstAlbumArtHash == null || currentAlbumArtHash == null)
 					{
 						sameAlbumArt = false;
@@ -778,102 +912,105 @@ namespace DLsiteMP3TagEditor
 					}
 				}
 
-				// ƒeƒLƒXƒgƒ{ƒbƒNƒX‚É•\¦‚·‚é
-				if (sameTitle) // ƒ^ƒCƒgƒ‹‚ª‚·‚×‚Ä“¯‚¶ê‡
+				// ãƒ†ã‚­ã‚¹ãƒˆãƒœãƒƒã‚¯ã‚¹ã«è¡¨ç¤ºã™ã‚‹
+				if (sameTitle) // ã‚¿ã‚¤ãƒˆãƒ«ãŒã™ã¹ã¦åŒã˜å ´åˆ
 				{
-					titleText.Text = titles[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					titleText.Text = titles[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 				}
-				else // ƒ^ƒCƒgƒ‹‚ªˆÙ‚È‚éê‡
+				else // ã‚¿ã‚¤ãƒˆãƒ«ãŒç•°ãªã‚‹å ´åˆ
 				{
-					titleText.Text = "<•¡”‚Ì’l>"; // <•¡”‚Ì’l>‚Æ•\¦‚·‚é
+					titleText.Text = "<è¤‡æ•°ã®å€¤>"; // <è¤‡æ•°ã®å€¤>ã¨è¡¨ç¤ºã™ã‚‹
 				}
-				if (sameArtist) // ƒA[ƒeƒBƒXƒg‚ª‚·‚×‚Ä“¯‚¶ê‡
+				if (sameArtist) // ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆãŒã™ã¹ã¦åŒã˜å ´åˆ
 				{
-					artistText.Text = artists[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					artistText.Text = artists[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 				}
-				else // ƒA[ƒeƒBƒXƒg‚ªˆÙ‚È‚éê‡
+				else // ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆãŒç•°ãªã‚‹å ´åˆ
 				{
-					artistText.Text = artists[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					artistText.Text = artists[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 					artistText.BackColor = Color.Red;
-					setLogMessage("•¡”‚ÌˆÙ‚È‚éƒA[ƒeƒBƒXƒg‚ªİ’è‚³‚ê‚Ä‚¢‚é‚½‚ßA‘ã•\‚µ‚Äˆê”ÔÅ‰‚É‘I‘ğ‚µ‚Ä‚¢‚éƒgƒ‰ƒbƒN‚Ìî•ñ‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B‚±‚Ì‚Ü‚Ü‘‚«‚Ş‚Æ•\¦‚³‚ê‚Ä‚¢‚é’l‚Åã‘‚«‚³‚ê‚Ü‚·B", MessageType.Warn);
+					setLogMessage("è¤‡æ•°ã®ç•°ãªã‚‹ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ä»£è¡¨ã—ã¦ä¸€ç•ªæœ€åˆã«é¸æŠã—ã¦ã„ã‚‹ãƒˆãƒ©ãƒƒã‚¯ã®æƒ…å ±ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚ã“ã®ã¾ã¾æ›¸ãè¾¼ã‚€ã¨è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹å€¤ã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ã€‚", MessageType.Warn);
 				}
-				if (sameYear) // ”N‚ª‚·‚×‚Ä“¯‚¶ê‡
+				if (sameYear) // å¹´ãŒã™ã¹ã¦åŒã˜å ´åˆ
 				{
-					// ‘ã•\“I‚È”N‚Ì’l‚ğŒˆ’è
+					// ä»£è¡¨çš„ãªå¹´ã®å€¤ã‚’æ±ºå®š
 					uint? representativeYear = years.FirstOrDefault(y => y >= 1990 && y <= 9999);
 					if (!representativeYear.HasValue || representativeYear == 0)
 					{
-						// 1990 ‚©‚ç 9999 ‚Ì”ÍˆÍ“à‚Ì”N‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡A‚Ü‚½‚Í0‚Ìê‡AŒ»İ‚Ì”N‚ğæ“¾
+						// 1990 ã‹ã‚‰ 9999 ã®ç¯„å›²å†…ã®å¹´ãŒè¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã€ã¾ãŸã¯0ã®å ´åˆã€ç¾åœ¨ã®å¹´ã‚’å–å¾—
 						representativeYear = (uint)DateTime.Now.Year;
-						setLogMessage("‘I‘ğ‚µ‚½ƒgƒ‰ƒbƒN‚Ì”N‚ª 1990 ‚©‚ç 9999 ‚Ì”ÍˆÍŠO‚Ü‚½‚Í0‚Ì‚½‚ßAŒ»İ‚Ì”N‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B", MessageType.Warn);
+						setLogMessage("é¸æŠã—ãŸãƒˆãƒ©ãƒƒã‚¯ã®å¹´ãŒ 1990 ã‹ã‚‰ 9999 ã®ç¯„å›²å¤–ã¾ãŸã¯0ã®ãŸã‚ã€ç¾åœ¨ã®å¹´ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚", MessageType.Warn);
 					}
 
 					yearText.Value = (decimal)representativeYear;
 				}
-				else // ”N‚ªˆÙ‚È‚éê‡
+				else // å¹´ãŒç•°ãªã‚‹å ´åˆ
 				{
-					// ‘ã•\“I‚È”N‚Ì’l‚ğŒˆ’è
+					// ä»£è¡¨çš„ãªå¹´ã®å€¤ã‚’æ±ºå®š
 					uint? representativeYear = years.FirstOrDefault(y => y >= 1990 && y <= 9999);
 					if (!representativeYear.HasValue || representativeYear == 0)
 					{
-						// 1990 ‚©‚ç 9999 ‚Ì”ÍˆÍ“à‚Ì”N‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡A‚Ü‚½‚Í0‚Ìê‡AŒ»İ‚Ì”N‚ğæ“¾
+						// 1990 ã‹ã‚‰ 9999 ã®ç¯„å›²å†…ã®å¹´ãŒè¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã€ã¾ãŸã¯0ã®å ´åˆã€ç¾åœ¨ã®å¹´ã‚’å–å¾—
 						representativeYear = (uint)DateTime.Now.Year;
-						setLogMessage("‘I‘ğ‚µ‚½ƒgƒ‰ƒbƒN‚Ì”N‚ª 1990 ‚©‚ç 9999 ‚Ì”ÍˆÍŠO‚Ü‚½‚Í0‚Ì‚½‚ßAŒ»İ‚Ì”N‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B", MessageType.Warn);
+						setLogMessage("é¸æŠã—ãŸãƒˆãƒ©ãƒƒã‚¯ã®å¹´ãŒ 1990 ã‹ã‚‰ 9999 ã®ç¯„å›²å¤–ã¾ãŸã¯0ã®ãŸã‚ã€ç¾åœ¨ã®å¹´ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚", MessageType.Warn);
 					}
 
 					yearText.Value = (decimal)representativeYear;
 
 					yearText.BackColor = Color.Red;
-					setLogMessage("•¡”‚ÌˆÙ‚È‚é”N‚ªİ’è‚³‚ê‚Ä‚¢‚é‚½‚ßA‘ã•\‚µ‚Äˆê”ÔÅ‰‚É‘I‘ğ‚µ‚Ä‚¢‚éƒgƒ‰ƒbƒN‚Ìî•ñ‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B‚±‚Ì‚Ü‚Ü‘‚«‚Ş‚Æ•\¦‚³‚ê‚Ä‚¢‚é’l‚Åã‘‚«‚³‚ê‚Ü‚·B", MessageType.Warn);
+					setLogMessage("è¤‡æ•°ã®ç•°ãªã‚‹å¹´ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ä»£è¡¨ã—ã¦ä¸€ç•ªæœ€åˆã«é¸æŠã—ã¦ã„ã‚‹ãƒˆãƒ©ãƒƒã‚¯ã®æƒ…å ±ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚ã“ã®ã¾ã¾æ›¸ãè¾¼ã‚€ã¨è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹å€¤ã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ã€‚", MessageType.Warn);
 				}
-				if (sameGenre) // ƒWƒƒƒ“ƒ‹‚ª‚·‚×‚Ä“¯‚¶ê‡
+				if (sameGenre) // ã‚¸ãƒ£ãƒ³ãƒ«ãŒã™ã¹ã¦åŒã˜å ´åˆ
 				{
-					genreText.Text = genres[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					genreText.Text = genres[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 				}
-				else // ƒWƒƒƒ“ƒ‹‚ªˆÙ‚È‚éê‡
+				else // ã‚¸ãƒ£ãƒ³ãƒ«ãŒç•°ãªã‚‹å ´åˆ
 				{
-					genreText.Text = genres[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					genreText.Text = genres[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 					genreText.BackColor = Color.Red;
-					setLogMessage("•¡”‚ÌˆÙ‚È‚éƒWƒƒƒ“ƒ‹‚ªİ’è‚³‚ê‚Ä‚¢‚é‚½‚ßA‘ã•\‚µ‚Äˆê”ÔÅ‰‚É‘I‘ğ‚µ‚Ä‚¢‚éƒgƒ‰ƒbƒN‚Ìî•ñ‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B‚±‚Ì‚Ü‚Ü‘‚«‚Ş‚Æ•\¦‚³‚ê‚Ä‚¢‚é’l‚Åã‘‚«‚³‚ê‚Ü‚·B", MessageType.Warn);
+					setLogMessage("è¤‡æ•°ã®ç•°ãªã‚‹ã‚¸ãƒ£ãƒ³ãƒ«ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ä»£è¡¨ã—ã¦ä¸€ç•ªæœ€åˆã«é¸æŠã—ã¦ã„ã‚‹ãƒˆãƒ©ãƒƒã‚¯ã®æƒ…å ±ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚ã“ã®ã¾ã¾æ›¸ãè¾¼ã‚€ã¨è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹å€¤ã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ã€‚", MessageType.Warn);
 				}
-				if (sameAlbum) // ƒAƒ‹ƒoƒ€‚ª‚·‚×‚Ä“¯‚¶ê‡
+				if (sameAlbum) // ã‚¢ãƒ«ãƒãƒ ãŒã™ã¹ã¦åŒã˜å ´åˆ
 				{
-					albumText.Text = albums[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					albumText.Text = albums[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 				}
-				else // ƒAƒ‹ƒoƒ€‚ªˆÙ‚È‚éê‡
+				else // ã‚¢ãƒ«ãƒãƒ ãŒç•°ãªã‚‹å ´åˆ
 				{
-					albumText.Text = albums[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					albumText.Text = albums[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 					albumText.BackColor = Color.Red;
-					setLogMessage("•¡”‚ÌˆÙ‚È‚éƒAƒ‹ƒoƒ€‚ªİ’è‚³‚ê‚Ä‚¢‚é‚½‚ßA‘ã•\‚µ‚Äˆê”ÔÅ‰‚É‘I‘ğ‚µ‚Ä‚¢‚éƒgƒ‰ƒbƒN‚Ìî•ñ‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B‚±‚Ì‚Ü‚Ü‘‚«‚Ş‚Æ•\¦‚³‚ê‚Ä‚¢‚é’l‚Åã‘‚«‚³‚ê‚Ü‚·B", MessageType.Warn);
+					setLogMessage("è¤‡æ•°ã®ç•°ãªã‚‹ã‚¢ãƒ«ãƒãƒ ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ä»£è¡¨ã—ã¦ä¸€ç•ªæœ€åˆã«é¸æŠã—ã¦ã„ã‚‹ãƒˆãƒ©ãƒƒã‚¯ã®æƒ…å ±ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚ã“ã®ã¾ã¾æ›¸ãè¾¼ã‚€ã¨è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹å€¤ã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ã€‚", MessageType.Warn);
 
 				}
-				if (sameAlbumArtist) // ƒAƒ‹ƒoƒ€ƒA[ƒeƒBƒXƒg‚ª‚·‚×‚Ä“¯‚¶ê‡
+				if (sameAlbumArtist) // ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆãŒã™ã¹ã¦åŒã˜å ´åˆ
 				{
-					albumArtistText.Text = albumArtists[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					albumArtistText.Text = albumArtists[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 				}
-				else // ƒAƒ‹ƒoƒ€ƒA[ƒeƒBƒXƒg‚ªˆÙ‚È‚éê‡
+				else // ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆãŒç•°ãªã‚‹å ´åˆ
 				{
-					albumArtistText.Text = albumArtists[0]; // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					albumArtistText.Text = albumArtists[0]; // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 					albumArtistText.BackColor = Color.Red;
-					setLogMessage("•¡”‚ÌˆÙ‚È‚éƒAƒ‹ƒoƒ€ƒA[ƒeƒBƒXƒg‚ªİ’è‚³‚ê‚Ä‚¢‚é‚½‚ßA‘ã•\‚µ‚Äˆê”ÔÅ‰‚É‘I‘ğ‚µ‚Ä‚¢‚éƒgƒ‰ƒbƒN‚Ìî•ñ‚ğ•\¦‚µ‚Ä‚¢‚Ü‚·B‚±‚Ì‚Ü‚Ü‘‚«‚Ş‚Æ•\¦‚³‚ê‚Ä‚¢‚é’l‚Åã‘‚«‚³‚ê‚Ü‚·B", MessageType.Warn);
+					setLogMessage("è¤‡æ•°ã®ç•°ãªã‚‹ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ä»£è¡¨ã—ã¦ä¸€ç•ªæœ€åˆã«é¸æŠã—ã¦ã„ã‚‹ãƒˆãƒ©ãƒƒã‚¯ã®æƒ…å ±ã‚’è¡¨ç¤ºã—ã¦ã„ã¾ã™ã€‚ã“ã®ã¾ã¾æ›¸ãè¾¼ã‚€ã¨è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹å€¤ã§ä¸Šæ›¸ãã•ã‚Œã¾ã™ã€‚", MessageType.Warn);
 				}
-				// ƒsƒNƒ`ƒƒ[ƒ{ƒbƒNƒX‚É•\¦‚·‚é
-				if (sameAlbumArt) // ƒAƒ‹ƒoƒ€ƒA[ƒg‚ª‚·‚×‚Ä“¯‚¶ê‡
+				// ãƒ”ã‚¯ãƒãƒ£ãƒ¼ãƒœãƒƒã‚¯ã‚¹ã«è¡¨ç¤ºã™ã‚‹
+				if (sameAlbumArt && albumArts[0] != null) // ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒˆãŒã™ã¹ã¦åŒã˜å ´åˆï¼ˆæœªè¨­å®šã®å ´åˆã¯nullã®ãŸã‚é™¤å¤–ã™ã‚‹ï¼‰
 				{
-					mp3Picture.BackgroundImage = Image.FromStream(new MemoryStream(albumArts[0])); // Å‰‚Ì—v‘f‚ğ•\¦‚·‚é
+					mp3Picture.BackgroundImage = Image.FromStream(new MemoryStream(albumArts[0])); // æœ€åˆã®è¦ç´ ã‚’è¡¨ç¤ºã™ã‚‹
 				}
-				else // ƒAƒ‹ƒoƒ€ƒA[ƒg‚ªˆÙ‚È‚éê‡
+				else // ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒˆãŒç•°ãªã‚‹å ´åˆ
 				{
-					mp3Picture.BackgroundImage = null; // ‰æ‘œ‚ğÁ‚·
-					setLogMessage("•¡”‚ÌˆÙ‚È‚éƒAƒ‹ƒoƒ€ƒA[ƒg‚ªİ’è‚³‚ê‚Ä‚¢‚éA‚à‚µ‚­‚Íİ’è‚³‚ê‚Ä‚¢‚È‚¢‚½‚ßA‰æ‘œ‚ğ•\¦‚µ‚Ü‚¹‚ñB", MessageType.Warn);
+					mp3Picture.BackgroundImage = null; // ç”»åƒã‚’æ¶ˆã™
+					setLogMessage("è¤‡æ•°ã®ç•°ãªã‚‹ã‚¢ãƒ«ãƒãƒ ã‚¢ãƒ¼ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã€ã‚‚ã—ãã¯è¨­å®šã•ã‚Œã¦ã„ãªã„ãŸã‚ã€ç”»åƒã‚’è¡¨ç¤ºã—ã¾ã›ã‚“ã€‚", MessageType.Warn);
 				}
 			}
 			else
 			{
-				setLogMessage("ŠY“–ƒpƒX‚Émp3ƒtƒ@ƒCƒ‹‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚¹‚ñB", MessageType.Warn);
+				setLogMessage("è©²å½“ãƒ‘ã‚¹ã«mp3ãƒ•ã‚¡ã‚¤ãƒ«ãŒå«ã¾ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", MessageType.Warn);
 			}
 		}
 
+		/// <summary>
+		/// DLsiteã«é–¢é€£ã™ã‚‹éƒ¨å“ã‚’åˆæœŸåŒ–ã—ã¾ã™ã€‚
+		/// </summary>
 		private void DLsiteItemClear()
 		{
 			productText.Text = circleText.Text = string.Empty;
@@ -883,18 +1020,26 @@ namespace DLsiteMP3TagEditor
 			return;
 		}
 
+		/// <summary>
+		/// MP3ã«é–¢é€£ã™ã‚‹éƒ¨å“ã‚’åˆæœŸåŒ–ã—ã¾ã™ã€‚
+		/// </summary>
 		private void MP3ItemClear()
 		{
 			titleText.Text = artistText.Text = genreText.Text = albumText.Text = albumArtistText.Text = string.Empty;
 			yearText.Value = (decimal)Convert.ToInt16(sellTimePicker.Value.ToString("yyyy"));
 			mp3Picture.BackgroundImage = null;
-			titleText.BackColor = artistText.BackColor = yearText.BackColor = genreText.BackColor = albumText.BackColor = albumArtistText.BackColor = SystemColors.Window;
+			titleText.BackColor = artistText.BackColor = yearText.BackColor = genreText.BackColor = albumText.BackColor = albumArtistText.BackColor = InputBackColor;
 			return;
 		}
 
+		/// <summary>
+		/// Sha256ã‚’è¨ˆç®—ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		private static byte[] ComputeSHA256(byte[] data)
 		{
-			// data‚ªnull‚Ìê‡‚É‰½‚à‚µ‚È‚¢
+			// dataãŒnullã®å ´åˆã«ä½•ã‚‚ã—ãªã„
 			if (data == null || data.Length == 0)
 			{
 				return null;
@@ -907,21 +1052,21 @@ namespace DLsiteMP3TagEditor
 		}
 
 		/// <summary>
-		/// ƒ}ƒEƒXƒ|ƒCƒ“ƒ^‚ÌƒAƒCƒRƒ“‚ğ•ÏX‚µ‚Ü‚·B
+		/// ãƒã‚¦ã‚¹ãƒã‚¤ãƒ³ã‚¿ã®ã‚¢ã‚¤ã‚³ãƒ³ã‚’å¤‰æ›´ã—ã¾ã™ã€‚
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void Main_DragEnter(object sender, DragEventArgs e)
 		{
-			// ƒ}ƒEƒXƒ|ƒCƒ“ƒ^[Œ`ó•ÏX
+			// ãƒã‚¦ã‚¹ãƒã‚¤ãƒ³ã‚¿ãƒ¼å½¢çŠ¶å¤‰æ›´
 			//
 			// DragDropEffects
-			//  Copy  :ƒf[ƒ^‚ªƒhƒƒbƒvæ‚ÉƒRƒs[‚³‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éó‘Ô
-			//  Move  :ƒf[ƒ^‚ªƒhƒƒbƒvæ‚ÉˆÚ“®‚³‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éó‘Ô
-			//  Scroll:ƒf[ƒ^‚É‚æ‚Á‚Äƒhƒƒbƒvæ‚ÅƒXƒNƒ[ƒ‹‚ªŠJn‚³‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éó‘ÔA‚ ‚é‚¢‚ÍŒ»İƒXƒNƒ[ƒ‹’†‚Å‚ ‚éó‘Ô
-			//  All   :ã‚Ì3‚Â‚ğ‘g‚İ‡‚í‚¹‚½‚à‚Ì
-			//  Link  :ƒf[ƒ^‚ÌƒŠƒ“ƒN‚ªƒhƒƒbƒvæ‚Éì¬‚³‚ê‚æ‚¤‚Æ‚µ‚Ä‚¢‚éó‘Ô
-			//  None  :‚¢‚©‚È‚éƒf[ƒ^‚àƒhƒƒbƒvæ‚ªó‚¯•t‚¯‚æ‚¤‚Æ‚µ‚È‚¢ó‘Ô
+			//  Copy  :ãƒ‡ãƒ¼ã‚¿ãŒãƒ‰ãƒ­ãƒƒãƒ—å…ˆã«ã‚³ãƒ”ãƒ¼ã•ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹çŠ¶æ…‹
+			//  Move  :ãƒ‡ãƒ¼ã‚¿ãŒãƒ‰ãƒ­ãƒƒãƒ—å…ˆã«ç§»å‹•ã•ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹çŠ¶æ…‹
+			//  Scroll:ãƒ‡ãƒ¼ã‚¿ã«ã‚ˆã£ã¦ãƒ‰ãƒ­ãƒƒãƒ—å…ˆã§ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãŒé–‹å§‹ã•ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹çŠ¶æ…‹ã€ã‚ã‚‹ã„ã¯ç¾åœ¨ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ä¸­ã§ã‚ã‚‹çŠ¶æ…‹
+			//  All   :ä¸Šã®3ã¤ã‚’çµ„ã¿åˆã‚ã›ãŸã‚‚ã®
+			//  Link  :ãƒ‡ãƒ¼ã‚¿ã®ãƒªãƒ³ã‚¯ãŒãƒ‰ãƒ­ãƒƒãƒ—å…ˆã«ä½œæˆã•ã‚Œã‚ˆã†ã¨ã—ã¦ã„ã‚‹çŠ¶æ…‹
+			//  None  :ã„ã‹ãªã‚‹ãƒ‡ãƒ¼ã‚¿ã‚‚ãƒ‰ãƒ­ãƒƒãƒ—å…ˆãŒå—ã‘ä»˜ã‘ã‚ˆã†ã¨ã—ãªã„çŠ¶æ…‹
 
 			if (e.Data.GetDataPresent(DataFormats.FileDrop))
 			{
@@ -933,14 +1078,19 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// ãƒ‰ãƒ©ãƒƒã‚°ã‚¢ãƒ³ãƒ‰ãƒ‰ãƒ­ãƒƒãƒ—ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void Main_DragDrop(object sender, DragEventArgs e)
 		{
-			// DataFormats.FileDrop‚ğ—^‚¦‚ÄAGetDataPresent()ƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·B
+			// DataFormats.FileDropã‚’ä¸ãˆã¦ã€GetDataPresent()ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ã€‚
 			var dropTarget = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
 			bool firstContinue = true;
 
-			// GetData‚É‚æ‚èæ“¾‚µ‚½StringŒ^‚Ì”z—ñ‚©‚ç—v‘f‚ğæ‚èo‚·B
+			// GetDataã«ã‚ˆã‚Šå–å¾—ã—ãŸStringå‹ã®é…åˆ—ã‹ã‚‰è¦ç´ ã‚’å–ã‚Šå‡ºã™ã€‚
 			foreach (var targetFile in dropTarget)
 			{
 				if (firstContinue && !(Path.GetExtension(targetFile).ToLower() == ".jpg" || Path.GetExtension(targetFile).ToLower() == ".png"))
@@ -951,31 +1101,35 @@ namespace DLsiteMP3TagEditor
 				}
 				DragAndDropExec(targetFile);
 			}
-			// ‘Sƒgƒ‰ƒbƒN‘I‘ğ
+			// å…¨ãƒˆãƒ©ãƒƒã‚¯é¸æŠ
 			AllMP3TracksSelect();
 
-			// ƒ^ƒOî•ñ‚ğ•\¦
+			// ã‚¿ã‚°æƒ…å ±ã‚’è¡¨ç¤º
 			GetListBoxSelectedInfo();
 		}
 
+		/// <summary>
+		/// ãƒªã‚¹ãƒˆã«ã‚¢ã‚¤ãƒ†ãƒ ã‚’è¿½åŠ ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="path">ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹</param>
 		private void DragAndDropExec(string path)
 		{
 			if (Directory.Exists(path))
 			{
-				// ƒtƒHƒ‹ƒ_
+				// ãƒ•ã‚©ãƒ«ãƒ€
 				directoryText.Text = path;
 				applyMP3FilesList(path, false);
 			}
 			else if (System.IO.File.Exists(path))
 			{
-				// ƒtƒ@ƒCƒ‹
+				// ãƒ•ã‚¡ã‚¤ãƒ«
 				if (System.IO.Path.GetExtension(path).ToLower() == ".mp3")
 				{
 					directoryText.Clear();
 
-					// mp3ListBox‚Éƒtƒ@ƒCƒ‹–¼‚¾‚¯‚ğ’Ç‰Á
+					// mp3ListBoxã«ãƒ•ã‚¡ã‚¤ãƒ«åã ã‘ã‚’è¿½åŠ 
 					mp3ListBox.Items.Add(Path.GetFileName(path));
-					// mp3PathListBox‚Éƒtƒ‹ƒpƒX‚ğ’Ç‰Á
+					// mp3PathListBoxã«ãƒ•ãƒ«ãƒ‘ã‚¹ã‚’è¿½åŠ 
 					mp3PathListBox.Items.Add(path);
 				}
 				else if ((Path.GetExtension(path).ToLower() == ".jpg" || Path.GetExtension(path).ToLower() == ".png"))
@@ -986,23 +1140,28 @@ namespace DLsiteMP3TagEditor
 					}
 					else
 					{
-						setLogMessage("Œ³‰æ‘œˆÛƒ`ƒFƒbƒN‚ª—LŒø‚Ì‚½‚ßA‰æ‘œ‚Í•ÏX‚³‚ê‚Ü‚¹‚ñB", MessageType.Info);
+						setLogMessage("å…ƒç”»åƒç¶­æŒãƒã‚§ãƒƒã‚¯ãŒæœ‰åŠ¹ã®ãŸã‚ã€ç”»åƒã¯å¤‰æ›´ã•ã‚Œã¾ã›ã‚“ã€‚", MessageType.Info);
 					}
 				}
 				else
 				{
-					setLogMessage($"ƒtƒ@ƒCƒ‹Œ`®‚ª•s³‚Å‚·BF{path}i{Path.GetExtension(path).ToLower()}j", MessageType.Error);
+					setLogMessage($"ãƒ•ã‚¡ã‚¤ãƒ«å½¢å¼ãŒä¸æ­£ã§ã™ã€‚ï¼š{path}ï¼ˆ{Path.GetExtension(path).ToLower()}ï¼‰", MessageType.Error);
 				}
 			}
 			else
 			{
-				// ƒtƒ@ƒCƒ‹‘¶İ‚µ‚È‚¢
-				setLogMessage($"ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚Ü‚¹‚ñF{path}", MessageType.Error);
+				// ãƒ•ã‚¡ã‚¤ãƒ«å­˜åœ¨ã—ãªã„
+				setLogMessage($"ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ã¾ã›ã‚“ï¼š{path}", MessageType.Error);
 			}
 
 			return;
 		}
 
+		/// <summary>
+		/// æ¤œç´¢ãƒœãƒƒã‚¯ã‚¹ã§ã®Enterã‚­ãƒ¼æŠ¼ä¸‹ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void searchText_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (e.KeyChar == (char)Keys.Enter)
@@ -1011,6 +1170,11 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// ãƒ•ã‚©ãƒ«ãƒ€å‚ç…§ãƒœãƒƒã‚¯ã‚¹ã§ã®Enterã‚­ãƒ¼æŠ¼ä¸‹ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void directoryText_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (e.KeyChar == (char)Keys.Enter)
@@ -1020,6 +1184,11 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// ãƒ•ã‚©ãƒ«ãƒ€åæ›´æ–°ãƒã‚§ãƒƒã‚¯ãƒœãƒƒã‚¯ã‚¹å¤‰æ›´æ™‚ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void editFolderNameCheck_CheckedChanged(object sender, EventArgs e)
 		{
 			bool status = editFolderNameCheck.Checked;
@@ -1029,19 +1198,29 @@ namespace DLsiteMP3TagEditor
 			folderNameEditHelpButton.Enabled = status;
 		}
 
+		/// <summary>
+		/// ãƒ•ã‚©ãƒ«ãƒ€åæ›´æ–°ãƒ˜ãƒ«ãƒ—ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void folderNameEditHelpButton_Click(object sender, EventArgs e)
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.Append("{ProductID}Fì•iID");
-			sb.Append("\n{ProductDate}F”Ì”„“úiyyMMddŒ`®j");
-			sb.Append("\n{ProductName}Fì•i–¼");
-			sb.Append("\n{ProductCircle}FƒT[ƒNƒ‹–¼");
-			sb.Append("\n{ProductCVs}Fº—D");
-			sb.Append("\n\n—\’èƒtƒHƒ‹ƒ_–¼F");
+			sb.Append("{ProductID}ï¼šä½œå“ID");
+			sb.Append("\n{ProductDate}ï¼šè²©å£²æ—¥ï¼ˆyyMMddå½¢å¼ï¼‰");
+			sb.Append("\n{ProductName}ï¼šä½œå“å");
+			sb.Append("\n{ProductCircle}ï¼šã‚µãƒ¼ã‚¯ãƒ«å");
+			sb.Append("\n{ProductCVs}ï¼šå£°å„ª");
+			sb.Append("\n\näºˆå®šãƒ•ã‚©ãƒ«ãƒ€åï¼š");
 			sb.Append("\n" + UpdateFolderName());
 			MessageBox.Show(sb.ToString(), this.Text);
 		}
 
+		/// <summary>
+		/// ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå¤‰æ›´æ™‚ã®è‡ªå‹•æ¤œç´¢ãƒã‚§ãƒƒã‚¯ãƒœãƒƒã‚¯ã‚¹å¤‰æ›´æ™‚ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void getProductIDFromPathCheck_CheckedChanged(object sender, EventArgs e)
 		{
 			if (getProductIDFromPathCheck.Checked)
@@ -1054,21 +1233,89 @@ namespace DLsiteMP3TagEditor
 			}
 		}
 
+		/// <summary>
+		/// DLsiteã®ç”»åƒã‚¯ãƒªãƒƒã‚¯ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void dlsitePicture_Click(object sender, EventArgs e)
 		{
 			if (dlsitePicture.BackgroundImage != null)
 			{
 				ImageViewer iv = new ImageViewer(dlsitePicture.BackgroundImage);
+				DarkTheme.Apply(iv, DarkTheme.IsDark);
 				iv.ShowDialog();
 			}
 		}
 
+		/// <summary>
+		/// MP3ã®ç”»åƒã‚¯ãƒªãƒƒã‚¯ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void mp3Picture_Click(object sender, EventArgs e)
 		{
 			if (mp3Picture.BackgroundImage != null)
 			{
 				ImageViewer iv = new ImageViewer(mp3Picture.BackgroundImage);
+				DarkTheme.Apply(iv, DarkTheme.IsDark);
 				iv.ShowDialog();
+			}
+		}
+
+		/// <summary>
+		/// ãƒ†ãƒ¼ãƒåˆ‡ã‚Šæ›¿ãˆãƒœã‚¿ãƒ³ã‚¯ãƒªãƒƒã‚¯ã‚¤ãƒ™ãƒ³ãƒˆ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void themeToggleButton_Click(object sender, EventArgs e)
+		{
+			bool dark = !DarkTheme.IsDark;
+			DarkTheme.Apply(this, dark);
+			UpdateThemeButtonText();
+			SaveDarkModeSetting(dark);
+			setLogMessage($"ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰ã‚’{(dark ? "æœ‰åŠ¹" : "ç„¡åŠ¹")}ã«ã—ã¾ã—ãŸã€‚", MessageType.Info);
+		}
+
+		/// <summary>
+		/// ãƒ†ãƒ¼ãƒåˆ‡ã‚Šæ›¿ãˆãƒœã‚¿ãƒ³ã®è¡¨è¨˜ã‚’ç¾åœ¨ã®ãƒ†ãƒ¼ãƒã«åˆã‚ã›ã¦æ›´æ–°ã—ã¾ã™ã€‚
+		/// </summary>
+		private void UpdateThemeButtonText()
+		{
+			// æŠ¼ã—ãŸã¨ãã«åˆ‡ã‚Šæ›¿ã‚ã‚‹å…ˆã®ãƒ†ãƒ¼ãƒåã‚’è¡¨ç¤ºã™ã‚‹
+			themeToggleButton.Text = DarkTheme.IsDark ? "ãƒ©ã‚¤ãƒˆãƒ¢ãƒ¼ãƒ‰" : "ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰";
+		}
+
+		/// <summary>
+		/// ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰è¨­å®šã‚’èª­ã¿è¾¼ã¿ã¾ã™ã€‚
+		/// </summary>
+		/// <returns>trueã§ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰</returns>
+		private static bool LoadDarkModeSetting()
+		{
+			try
+			{
+				return System.IO.File.Exists(darkModeSettingPath) && System.IO.File.ReadAllText(darkModeSettingPath).Trim() == "1";
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰è¨­å®šã‚’ä¿å­˜ã—ã¾ã™ã€‚
+		/// </summary>
+		/// <param name="dark">trueã§ãƒ€ãƒ¼ã‚¯ãƒ¢ãƒ¼ãƒ‰</param>
+		private static void SaveDarkModeSetting(bool dark)
+		{
+			try
+			{
+				Directory.CreateDirectory(Path.GetDirectoryName(darkModeSettingPath));
+				System.IO.File.WriteAllText(darkModeSettingPath, dark ? "1" : "0");
+			}
+			catch (Exception)
+			{
+				// ä¿å­˜ã«å¤±æ•—ã—ã¦ã‚‚å‹•ä½œã«ã¯å½±éŸ¿ã—ãªã„ãŸã‚ä½•ã‚‚ã—ãªã„
 			}
 		}
 	}
