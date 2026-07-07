@@ -30,6 +30,10 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
+			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+			this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+			this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
+			this.themeToggleButton = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.productIDText = new System.Windows.Forms.TextBox();
 			this.label14 = new System.Windows.Forms.Label();
@@ -38,7 +42,7 @@
 			this.label6 = new System.Windows.Forms.Label();
 			this.cvCheckList = new System.Windows.Forms.CheckedListBox();
 			this.label5 = new System.Windows.Forms.Label();
-			this.sellTimePicker = new System.Windows.Forms.DateTimePicker();
+			this.sellTimePicker = new DLsiteMP3TagEditor.DarkDateTimePicker();
 			this.label4 = new System.Windows.Forms.Label();
 			this.circleText = new System.Windows.Forms.TextBox();
 			this.label3 = new System.Windows.Forms.Label();
@@ -75,11 +79,12 @@
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.logText = new System.Windows.Forms.RichTextBox();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.mp3ListBox = new System.Windows.Forms.ListBox();
+			this.mp3PathListBox = new System.Windows.Forms.ListBox();
 			this.autoSearchProductInfoFromPathCheck = new System.Windows.Forms.CheckBox();
 			this.getProductIDFromPathCheck = new System.Windows.Forms.CheckBox();
-			this.mp3PathListBox = new System.Windows.Forms.ListBox();
-			this.mp3ListBox = new System.Windows.Forms.ListBox();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.statusStrip1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dlsitePicture)).BeginInit();
 			this.groupBox2.SuspendLayout();
@@ -528,10 +533,10 @@
 			// 
 			// groupBox4
 			// 
+			this.groupBox4.Controls.Add(this.mp3ListBox);
+			this.groupBox4.Controls.Add(this.mp3PathListBox);
 			this.groupBox4.Controls.Add(this.autoSearchProductInfoFromPathCheck);
 			this.groupBox4.Controls.Add(this.getProductIDFromPathCheck);
-			this.groupBox4.Controls.Add(this.mp3PathListBox);
-			this.groupBox4.Controls.Add(this.mp3ListBox);
 			this.groupBox4.Controls.Add(this.label7);
 			this.groupBox4.Controls.Add(this.directoryText);
 			this.groupBox4.Controls.Add(this.directorySearchButton);
@@ -541,6 +546,28 @@
 			this.groupBox4.TabIndex = 3;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "mp3 files";
+			// 
+			// mp3ListBox
+			// 
+			this.mp3ListBox.FormattingEnabled = true;
+			this.mp3ListBox.ItemHeight = 15;
+			this.mp3ListBox.Location = new System.Drawing.Point(6, 78);
+			this.mp3ListBox.Name = "mp3ListBox";
+			this.mp3ListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+			this.mp3ListBox.Size = new System.Drawing.Size(412, 259);
+			this.mp3ListBox.TabIndex = 12;
+			this.mp3ListBox.SelectedIndexChanged += new System.EventHandler(this.mp3ListBox_SelectedIndexChanged);
+			// 
+			// mp3PathListBox
+			// 
+			this.mp3PathListBox.FormattingEnabled = true;
+			this.mp3PathListBox.ItemHeight = 15;
+			this.mp3PathListBox.Location = new System.Drawing.Point(6, 343);
+			this.mp3PathListBox.Name = "mp3PathListBox";
+			this.mp3PathListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+			this.mp3PathListBox.Size = new System.Drawing.Size(412, 259);
+			this.mp3PathListBox.TabIndex = 13;
+			this.mp3PathListBox.SelectedIndexChanged += new System.EventHandler(this.mp3PathListBox_SelectedIndexChanged);
 			// 
 			// autoSearchProductInfoFromPathCheck
 			// 
@@ -566,41 +593,56 @@
 			this.getProductIDFromPathCheck.Text = "ファイルパスから作品IDを抽出する";
 			this.getProductIDFromPathCheck.UseVisualStyleBackColor = true;
 			this.getProductIDFromPathCheck.CheckedChanged += new System.EventHandler(this.getProductIDFromPathCheck_CheckedChanged);
-			// 
-			// mp3PathListBox
-			// 
-			this.mp3PathListBox.FormattingEnabled = true;
-			this.mp3PathListBox.HorizontalScrollbar = true;
-			this.mp3PathListBox.ItemHeight = 15;
-			this.mp3PathListBox.Location = new System.Drawing.Point(6, 347);
-			this.mp3PathListBox.Name = "mp3PathListBox";
-			this.mp3PathListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-			this.mp3PathListBox.Size = new System.Drawing.Size(412, 259);
-			this.mp3PathListBox.TabIndex = 13;
-			this.mp3PathListBox.SelectedIndexChanged += new System.EventHandler(this.mp3PathListBox_SelectedIndexChanged);
-			// 
-			// mp3ListBox
-			// 
-			this.mp3ListBox.FormattingEnabled = true;
-			this.mp3ListBox.HorizontalScrollbar = true;
-			this.mp3ListBox.ItemHeight = 15;
-			this.mp3ListBox.Location = new System.Drawing.Point(6, 82);
-			this.mp3ListBox.Name = "mp3ListBox";
-			this.mp3ListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-			this.mp3ListBox.Size = new System.Drawing.Size(412, 259);
-			this.mp3ListBox.TabIndex = 12;
-			this.mp3ListBox.SelectedIndexChanged += new System.EventHandler(this.mp3ListBox_SelectedIndexChanged);
-			// 
+			//
+			// statusStrip1
+			//
+			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusLabel,
+            this.progressBar});
+			this.statusStrip1.Location = new System.Drawing.Point(0, 659);
+			this.statusStrip1.Name = "statusStrip1";
+			this.statusStrip1.Size = new System.Drawing.Size(1046, 22);
+			this.statusStrip1.SizingGrip = false;
+			this.statusStrip1.TabIndex = 4;
+			this.statusStrip1.Text = "statusStrip1";
+			//
+			// statusLabel
+			//
+			this.statusLabel.Name = "statusLabel";
+			this.statusLabel.Size = new System.Drawing.Size(831, 17);
+			this.statusLabel.Spring = true;
+			this.statusLabel.Text = "準備完了";
+			this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			//
+			// progressBar
+			//
+			this.progressBar.Name = "progressBar";
+			this.progressBar.Size = new System.Drawing.Size(200, 16);
+			this.progressBar.Visible = false;
+			//
+			// themeToggleButton
+			//
+			this.themeToggleButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.themeToggleButton.Location = new System.Drawing.Point(924, 630);
+			this.themeToggleButton.Name = "themeToggleButton";
+			this.themeToggleButton.Size = new System.Drawing.Size(110, 25);
+			this.themeToggleButton.TabIndex = 6;
+			this.themeToggleButton.Text = "ダークモード";
+			this.themeToggleButton.UseVisualStyleBackColor = true;
+			this.themeToggleButton.Click += new System.EventHandler(this.themeToggleButton_Click);
+			//
 			// Main
-			// 
+			//
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1046, 635);
+			this.ClientSize = new System.Drawing.Size(1046, 681);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
+			this.Controls.Add(this.statusStrip1);
+			this.Controls.Add(this.themeToggleButton);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
@@ -610,6 +652,8 @@
 			this.Load += new System.EventHandler(this.Main_Load);
 			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Main_DragDrop);
 			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Main_DragEnter);
+			this.statusStrip1.ResumeLayout(false);
+			this.statusStrip1.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dlsitePicture)).EndInit();
@@ -621,6 +665,7 @@
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox4.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -632,7 +677,7 @@
 		private Label label6;
 		private CheckedListBox cvCheckList;
 		private Label label5;
-		private DateTimePicker sellTimePicker;
+		private DarkDateTimePicker sellTimePicker;
 		private Label label4;
 		private TextBox circleText;
 		private Label label3;
@@ -676,5 +721,9 @@
 		private CheckBox editFolderNameOnlyCheck;
 		private ToolTip toolTip1;
 		private PictureBox mp3Picture;
+		private StatusStrip statusStrip1;
+		private ToolStripStatusLabel statusLabel;
+		private ToolStripProgressBar progressBar;
+		private Button themeToggleButton;
 	}
 }
