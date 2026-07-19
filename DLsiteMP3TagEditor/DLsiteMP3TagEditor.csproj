@@ -33,6 +33,9 @@
 
   <ItemGroup>
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
+    <!-- DLsiteInfoGetter(packages.config)経由のAngleSharp 1.5.1がSystem.Text.Encoding.CodePages>=8.0.0を要求する。
+         明示指定しないとnet6.0参照アセンブリ同梱の6.0.0.0がプライマリに選ばれ、実行時にFileLoadExceptionになる。 -->
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
